@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+# Block admin and internal areas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /login
+Disallow: /register
+
+
+# Block system folders
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /app/
+
+# Allow important resources
+Allow: /storage/images/
+Allow: /public/uploads/
+
+# Sitemap location
+Sitemap: https://mhow.org/sitemap.xml

@@ -1,0 +1,1123 @@
+/* ===== MuseoSansRounded Font Setup ===== */
+@font-face {
+    font-family: 'MuseoSansRounded';
+    src: url('../fonts/MuseoSansRounded100.otf') format('opentype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MuseoSansRounded';
+    src: url('../fonts/MuseoSansRounded300.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MuseoSansRounded';
+    src: url('../fonts/MuseoSansRounded500.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MuseoSansRounded';
+    src: url('../fonts/MuseoSansRounded700.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MuseoSansRounded';
+    src: url('../fonts/MuseoSansRounded700.otf') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MuseoSansRounded';
+    src: url('../fonts/MuseoSansRounded700.otf') format('opentype');
+    font-weight: 1000;
+    font-style: normal;
+}
+
+/* Set as default font */
+body {
+    font-family: 'MuseoSansRounded', 'Manrope', 'Inter', sans-serif !important;
+}
+
+/* ===== Font Usage Rules ===== */
+
+/* Default font for body text */
+/* body, p, li, a, button, input, textarea, span {
+    font-family: 'Manrope', 'Inter', sans-serif !important;
+} */
+
+/* Headings use MuseoSansRounded */
+html, body, h1, h2, h3, h4, h5, h6, p, a, li, span, button, input, textarea {
+    font-family: 'MuseoSansRounded', sans-serif !important;
+}
+
+/* Optional: refine look */
+h1 { font-weight: 900; }   /* Ultra Bold */
+h2 { font-weight: 700; }   /* Bold */
+h3 { font-weight: 500; }   /* Medium */
+p  { font-weight: 300; }   /* Light */
+.small-text { font-weight: 100; }  /* Ultra Light */
+.super-thick { font-weight: 1000; } /* Extra Heavy */
+
+/* Make headings slightly bolder visually */
+h1, h2, h3 {
+    text-transform: capitalize;
+}
+
+
+/* Mhow New Slider CSS Start */
+
+.new-mhow-swiper-container {
+    position: relative;
+    width: 100%;
+    height: auto; /* let content define height */
+    overflow: hidden;
+}
+
+.new-mhow-swiper {
+    width: 100%;
+    height: auto; /* auto height */
+}
+
+.new-mhow-slide {
+    position: relative; /* establishes positioning context */
+    width: 100%;
+    height: auto;
+}
+
+.new-mhow-img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.new-mhow-slide-content {
+    position: absolute; /* instead of relative */
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%); /* vertically center */
+    z-index: 2;
+    width: 50%;
+    color: white;
+}
+
+.new-mhow-swiper,
+.new-mhow-swiper-container,
+.new-mhow-slide {
+    height: auto !important; /* force auto height */
+}
+
+.new-mhow-title-box {
+    display: inline-block;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
+    border-left: 5px solid #A91F21;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: all 0.8s ease;
+}
+
+.new-mhow-slide-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+}
+
+.new-mhow-slide-button {
+    display: inline-block;
+    padding: 12px 30px;
+    background: #A91F21;
+    border: none;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 1px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease 0.3s;
+    border-radius: 4px;
+}
+
+.new-mhow-slide-button:hover {
+    background: #004a8c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.new-mhow-slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(0, 94, 180, 0.7) 0%,
+        rgba(0, 94, 180, 0.3) 70%,
+        transparent 100%
+    );
+    z-index: 1;
+}
+
+.new-mhow-navigation {
+    position: absolute;
+    bottom: 30px;
+    left: 5%;
+    z-index: 10;
+    display: flex;
+    gap: 15px;
+}
+
+.new-mhow-nav-btn {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.new-mhow-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+}
+
+.swiper-slide-active .new-mhow-title-box,
+.swiper-slide-active .new-mhow-slide-button {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+@media (max-width: 992px) {
+    .new-mhow-slide-content {
+        width: 70%;
+    }
+
+    .new-mhow-slide-title {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .new-mhow-swiper-container {
+        height: 500px;
+    }
+
+    .new-mhow-slide-content {
+        width: 85%;
+    }
+
+    .new-mhow-slide-title {
+        font-size: 1.8rem;
+    }
+
+    .new-mhow-title-box {
+        padding: 1rem 1.5rem;
+    }
+
+    .new-mhow-slide-overlay {
+        width: 100%;
+        background: linear-gradient(
+            to bottom,
+            rgba(0, 94, 180, 0.7) 0%,
+            rgba(0, 94, 180, 0.3) 70%,
+            transparent 100%
+        );
+    }
+
+    .new-mhow-navigation {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
+@media (max-width: 576px) {
+    .new-mhow-swiper-container {
+        height: 450px;
+    }
+
+    .new-mhow-slide-content {
+        width: 90%;
+        text-align: center;
+    }
+
+    .new-mhow-slide-title {
+        font-size: 1.5rem;
+    }
+
+    .new-mhow-title-box {
+        padding: 0.8rem 1.2rem;
+    }
+}
+
+/* Mhow New Slider CSS End */
+
+/* Mhow New News and Updates Start */
+
+.new-mhow-news-section {
+    background: linear-gradient(135deg, #005EB4 0%, #d1213f 100%);
+    color: white;
+    padding: 7px 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.new-mhow-news-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+}
+
+.new-mhow-news-title {
+    flex-shrink: 0;
+    padding-right: 30px;
+    position: relative;
+    z-index: 2;
+}
+
+.new-mhow-news-title h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    color: #ffffff;
+}
+
+.new-mhow-news-title i {
+    margin-right: 10px;
+    color: #ffffff;
+    animation: new-mhow-pulse 2s infinite;
+}
+
+.new-mhow-news-ticker {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.new-mhow-ticker-content {
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 100%;
+    animation: new-mhow-ticker-scroll 30s linear infinite;
+}
+
+.new-mhow-ticker-content p {
+    display: inline;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.new-mhow-ticker-content span {
+    color: #ffffff;
+    text-decoration: underline;
+    font-weight: 700;
+}
+
+.new-mhow-news-divider {
+    width: 2px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.3);
+    margin: 0 20px;
+    flex-shrink: 0;
+}
+
+@keyframes new-mhow-ticker-scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes new-mhow-pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.new-mhow-news-ticker:hover .new-mhow-ticker-content {
+    animation-play-state: paused;
+}
+
+@media (max-width: 992px) {
+    .new-mhow-news-title h3 {
+        font-size: 1rem;
+    }
+
+    .new-mhow-ticker-content p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .new-mhow-news-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .new-mhow-news-title {
+        padding-right: 0;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+
+    .new-mhow-news-divider {
+        display: none;
+    }
+
+    .new-mhow-news-ticker {
+        width: 100%;
+    }
+
+    .new-mhow-ticker-content {
+        animation-duration: 25s;
+    }
+}
+
+@media (max-width: 576px) {
+    .new-mhow-news-title h3 {
+        font-size: 0.9rem;
+    }
+
+    .new-mhow-ticker-content p {
+        font-size: 0.7rem;
+    }
+
+    .new-mhow-ticker-content {
+        animation-duration: 20s;
+    }
+}
+
+/* Mhow New News and Updates End */
+
+/* Mhow New Grid Section Start */
+
+.new-mhow-container {
+    padding: 40px 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.new-mhow-grid {
+    display: grid;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.new-mhow-grid-1 {
+    grid-template-columns: 1fr;
+}
+
+.new-mhow-grid-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.new-mhow-grid-3 {
+    grid-template-columns: 2fr 1fr;
+    grid-auto-rows: 1fr;
+    align-items: stretch;
+}
+
+.new-mhow-image-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    height: 100%;
+    min-height: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.new-mhow-grid-3 .new-mhow-image-container {
+    height: 100%;
+}
+
+.new-mhow-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.new-mhow-image-container:hover img {
+    transform: scale(1.05);
+}
+
+.new-mhow-text-overlay {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background-color: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 1rem;
+    max-width: 85%;
+    line-height: 1.3;
+}
+
+.new-mhow-subgrid {
+    display: grid;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+    height: 100%;
+}
+
+.new-mhow-subgrid .new-mhow-image-container {
+    height: 100%;
+}
+
+@media (max-width: 992px) {
+    .new-mhow-grid-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .new-mhow-subgrid {
+        grid-template-rows: 1fr;
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .new-mhow-image-container {
+        min-height: 280px;
+    }
+
+    .new-mhow-text-overlay {
+        font-size: 0.95rem;
+        bottom: 15px;
+        left: 15px;
+        padding: 8px 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .new-mhow-grid-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .new-mhow-subgrid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+    }
+
+    .new-mhow-image-container {
+        min-height: 250px;
+    }
+
+    .new-mhow-text-overlay {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .new-mhow-subgrid {
+        grid-template-columns: 1fr;
+    }
+
+    .new-mhow-image-container {
+        min-height: 220px;
+        border-radius: 8px;
+    }
+
+    .new-mhow-text-overlay {
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        bottom: 10px;
+        left: 10px;
+    }
+}
+
+/* Mhow New Grid Section End */
+
+/* Mhow Home Table Start */
+
+.new-mhow-section {
+    padding: 2rem 0;
+    background-color: #f8f9fa;
+}
+
+.new-mhow-card {
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: none;
+    overflow: hidden;
+}
+
+.new-mhow-card-header {
+    background-color: #1a237e;
+    color: white;
+    padding: 1rem;
+    border-bottom: none;
+}
+
+.new-mhow-card-body {
+    padding: 0;
+}
+
+.new-mhow-table {
+    margin-bottom: 0;
+}
+
+.new-mhow-table thead th {
+    background-color: #e8eaf6;
+    border-bottom: 1px solid #c5cae9;
+    font-weight: 600;
+    padding: 0.8rem;
+    text-align: center;
+}
+
+.new-mhow-table tbody td {
+    /* padding: 1rem; */
+    vertical-align: middle;
+    border: 0 !important;
+    text-align: center;;
+}
+
+.new-mhow-table tbody tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.new-mhow-table tbody tr:hover {
+    background-color: #e8eaf6;
+}
+
+.new-mhow-flag {
+    width: 30px;
+    height: 20px;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.new-mhow-footer {
+    background-color: #f8f9fa;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.new-mhow-link {
+    color: #1a237e;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.new-mhow-link:hover {
+    text-decoration: underline;
+}
+
+.new-mhow-updated {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .new-mhow-table {
+        border: 0;
+    }
+
+    .new-mhow-table thead {
+        display: none; /* hide table head */
+    }
+
+    .new-mhow-table tbody tr {
+        display: block;
+        margin-bottom: 1.2rem;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .new-mhow-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 0.95rem;
+        text-align: left;
+    }
+
+    .new-mhow-table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .new-mhow-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #495057;
+        flex-basis: 45%;
+        text-align: left;
+    }
+
+    .new-mhow-table tbody td:not(:before) {
+        text-align: right;
+        flex-basis: 55%;
+    }
+
+    /* flag images alignment */
+    .new-mhow-table tbody td img {
+        margin-left: auto;
+    }
+
+    .new-mhow-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+    }
+}
+
+
+/* Mhow Home Table End */
+
+/* Section 2: Impact */
+.impact-section {
+    padding: 5rem 0;
+    background: white;
+}
+
+.impact-section h2 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 3rem;
+    color: #2c3e50;
+}
+
+.impact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.impact-card {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.impact-card:hover {
+    transform: translateY(-5px);
+}
+
+.impact-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #2c5aa0;
+}
+
+.impact-card h3 {
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #2c5aa0;
+    border: 2px solid #2c5aa0;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-secondary:hover {
+    background: #2c5aa0;
+    color: white;
+}
+
+/* Section 3: Story */
+.story-section {
+    padding: 5rem 0;
+    background: #f8f9fa;
+}
+
+.story-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+/* Image styling */
+.story-image {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    object-fit: cover;
+}
+
+/* Text box styling */
+.story-quote {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #A91F21;
+}
+
+.story-quote h5 {
+    color: #004a8c;
+    font-weight: 700;
+}
+
+.story-quote p {
+    margin-bottom: 0;
+    color: #444;
+    line-height: 1.7;
+}
+
+/* --- Tablet screens --- */
+@media (max-width: 992px) {
+    .story-content {
+        gap: 2rem;
+    }
+
+    .story-quote {
+        padding: 1.8rem;
+    }
+
+    .story-image {
+        border-radius: 8px;
+    }
+}
+
+/* --- Mobile & Small tablets --- */
+@media (max-width: 768px) {
+    .story-content {
+        grid-template-columns: 1fr;
+    }
+
+    /* flip order for even sections */
+    .story-section:nth-child(even) .story-content {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+    .story-quote {
+        padding: 1.5rem;
+        border-left-width: 3px;
+    }
+
+    .story-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+    }
+}
+
+/* --- Small phones --- */
+@media (max-width: 576px) {
+    .story-section {
+        padding: 3rem 0;
+    }
+
+    .story-quote {
+        padding: 1.25rem;
+        font-size: 0.95rem;
+    }
+
+    .story-quote h5 {
+        font-size: 1.1rem;
+    }
+
+    .story-image {
+        max-height: 300px;
+    }
+}
+
+
+.new-mhow-container {
+    background-image: url("https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80");
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.new-mhow-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+}
+
+.new-mhow-donation-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 2rem;
+    margin: 2rem 0;
+    position: relative;
+    z-index: 1;
+}
+
+.new-mhow-donation-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.new-mhow-donation-title {
+    color: #004080;
+    font-weight: 700;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.new-mhow-tabs {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.new-mhow-tab {
+    padding: 0.7rem 1.5rem;
+    background-color: white;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.new-mhow-tab:first-child {
+    border-radius: 6px 0 0 6px;
+    border-right: none;
+}
+
+.new-mhow-tab:last-child {
+    border-radius: 0 6px 6px 0;
+}
+
+.new-mhow-tab.active {
+    background-color: #005EB4;
+    color: white;
+    border-color: #005EB4;
+}
+
+.new-mhow-amounts {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.new-mhow-amount {
+    flex: 1;
+    margin: 0 0.5rem;
+    padding: 1rem 0.5rem;
+    background-color: #f4f8fc;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+
+.new-mhow-amount:hover {
+    background-color: #e0f0ff;
+}
+
+.new-mhow-amount.selected {
+    border-color: #005EB4;
+    background-color: #d0e7ff;
+    color: #005EB4;
+}
+
+.new-mhow-custom-amount {
+    margin-bottom: 1.5rem;
+}
+
+.new-mhow-custom-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    color: #5f6368;
+}
+
+.new-mhow-custom-label i {
+    margin-right: 0.5rem;
+}
+
+.new-mhow-input-group {
+    display: flex;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.new-mhow-currency {
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.new-mhow-custom-input {
+    flex: 1;
+    border: none;
+    padding: 0.75rem;
+    outline: none;
+    font-size: 1rem;
+}
+
+.new-mhow-description {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #5f6368;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.new-mhow-donate-btn {
+    width: 100%;
+    padding: 0.9rem;
+    background-color: #A91F21;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.new-mhow-donate-btn:hover {
+    background-color: #004a8c;
+}
+
+.new-mhow-paypal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #5f6368;
+    font-size: 0.9rem;
+}
+
+.new-mhow-paypal-logo {
+    font-weight: 700;
+    color: #005EB4;
+    margin-left: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.new-mhow-badge {
+    position: absolute;
+    top: -10px;
+    right: 20px;
+    background-color: #0074D9;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.slider-arrow {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #A91F21;
+    color: #1CA8CB;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.slider-arrow:hover {
+    background: #005EB4;
+    color: #fff;
+    border-color: #005EB4;
+}
+
+.slider-arrow i {
+    vertical-align: middle;
+}
+
+/* =========================
+   WhatsApp Floating Button
+========================= */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 20px;
+    right: 20px;
+    background-color: #25D366;
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 30px;
+    z-index: 999;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    background-color: #1EBE57;
+    color: #fff;
+}
+
+.whatsapp-float i {
+    margin-top: 15px;
+}
+
+
+@media (max-width: 768px) {
+    .new-mhow-amounts {
+        flex-wrap: wrap;
+    }
+
+    .new-mhow-amount {
+        flex: 0 0 calc(50% - 1rem);
+        margin-bottom: 0.5rem;
+    }
+
+    .new-mhow-donation-card {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .new-mhow-amount {
+        flex: 0 0 100%;
+    }
+}

@@ -1,0 +1,255 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\SeoMeta;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+
+class SeoMetaController extends Controller
+{
+    public function index()
+    {
+        $seoMetas = SeoMeta::all();
+
+        return view('admin.seo-meta.index', compact('seoMetas'));
+    }
+
+    public function add()
+    {
+        return view('admin.seo-meta.add');
+    }
+
+    public function store(Request $request)
+    {
+
+        $request->validate([
+            'page_slug' => 'nullable|string|unique:seo_metas,page_slug',
+            // 'fav_icon' => 'nullable|image|mimes:jpg,jpeg,png,webp,ico|max:2048',
+            // 'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'meta_info' => 'nullable|string',
+            // 'meta_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'og_meta' => 'nullable|string',
+            // 'og_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'twitter_meta' => 'nullable|string',
+            // 'twitter_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'scheme' => 'nullable|string',
+            'header_top' => 'nullable',
+            'header_bottom' => 'nullable',
+            'body_start' => 'nullable',
+            'body_end' => 'nullable',
+            'custom_css' => 'nullable',
+            'custom_js' => 'nullable',
+        ]);
+        $seoMeta = new SeoMeta;
+        $seoMeta->page_slug = $request->page_slug;
+        $seoMeta->meta_info = $request->meta_info;
+        $seoMeta->og_meta = $request->og_meta;
+        $seoMeta->twitter_meta = $request->twitter_meta;
+        $seoMeta->scheme = $request->scheme;
+        $seoMeta->header_top = $request->header_top;
+        $seoMeta->header_bottom = $request->header_bottom;
+        $seoMeta->body_start = $request->body_start;
+        $seoMeta->body_end = $request->body_end;
+        $seoMeta->custom_css = $request->custom_css;
+        $seoMeta->custom_js = $request->custom_js;
+    $seoMeta->structured_data = $request->structured_data_global;
+        $seoMeta->header_scripts = $request->global_header_scripts;
+        $seoMeta->body_end_scripts = $request->global_body_end_scripts;
+        // if ($request->hasFile('fav_icon')) {
+        $seoMeta->fav_icon = $request->fav_icon ?? null;
+        $seoMeta->logo = $request->logo ?? null;
+        $seoMeta->meta_image = $request->meta_image ?? null;
+        $seoMeta->og_image = $request->og_image ?? null;
+        $seoMeta->twitter_image = $request->twitter_image ?? null;
+
+        $seoMeta->save();
+
+        return redirect()->route('admin.seo.meta.index')
+            ->with('notification', ['message' => 'SEO Meta Added Successfully!', 'alert' => 'success']);
+    }
+
+    public function edit($id)
+    {
+        $seoMeta = SeoMeta::findOrFail($id);
+
+        return view('admin.seo-meta.edit', compact('seoMeta'));
+    }
+
+    public function update(Request $request, $id)
+    {
+
+        $seoMeta = SeoMeta::findOrFail($id);
+
+        $request->validate([
+            'page_slug' => 'nullable|string|unique:seo_metas,page_slug,'.$id,
+            // 'fav_icon' => 'nullable|image|mimes:jpg,jpeg,png,webp,ico|max:2048',
+            // 'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'meta_info' => 'nullable|string',
+            // 'meta_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'og_meta' => 'nullable|string',
+            // 'og_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'twitter_meta' => 'nullable|string',
+            // 'twitter_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'scheme' => 'nullable|string',
+            'header_top' => 'nullable',
+            'header_bottom' => 'nullable',
+            'body_start' => 'nullable',
+            'body_end' => 'nullable',
+            'custom_css' => 'nullable',
+            'custom_js' => 'nullable',
+        ]);
+
+        $seoMeta->page_slug = $request->page_slug;
+
+        $seoMeta->meta_info = $request->meta_info;
+        $seoMeta->og_meta = $request->og_meta;
+        $seoMeta->twitter_meta = $request->twitter_meta;
+        $seoMeta->scheme = $request->scheme;
+        $seoMeta->header_top = $request->header_top;
+        $seoMeta->header_bottom = $request->header_bottom;
+        $seoMeta->body_start = $request->body_start;
+        $seoMeta->body_end = $request->body_end;
+        $seoMeta->custom_css = $request->custom_css;
+        $seoMeta->custom_js = $request->custom_js;
+        $seoMeta->structured_data = $request->structured_data_global;
+        $seoMeta->header_scripts = $request->global_header_scripts;
+        $seoMeta->body_end_scripts = $request->global_body_end_scripts;
+        // if ($request->hasFile('fav_icon')) {
+        //     if ($seoMeta->fav_icon && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->fav_icon)) {
+        //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->fav_icon);
+        //     }
+        //     $file = $request->file('fav_icon');
+        //     $fav_icon = time().rand().'.'.$file->getClientOriginalExtension();
+        //     $file->move('assets/admin/uploads/seo_metas/', $fav_icon);
+        //     $seoMeta->fav_icon = $fav_icon;
+        // }
+
+        // if ($request->hasFile('logo')) {
+        //     if ($seoMeta->logo && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->logo)) {
+        //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->logo);
+        //     }
+        //     $file = $request->file('logo');
+        //     $logo = time().rand().'.'.$file->getClientOriginalExtension();
+        //     $file->move('assets/admin/uploads/seo_metas/', $logo);
+        //     $seoMeta->logo = $logo;
+        // }
+
+        // if ($request->hasFile('meta_image')) {
+        //     if ($seoMeta->meta_image && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->meta_image)) {
+        //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->meta_image);
+        //     }
+        //     $file = $request->file('meta_image');
+        //     $meta_image = time().rand().'.'.$file->getClientOriginalExtension();
+        //     $file->move('assets/admin/uploads/seo_metas/', $meta_image);
+        //     $seoMeta->meta_image = $meta_image;
+        // }
+
+        // if ($request->hasFile('og_image')) {
+        //     if ($seoMeta->og_image && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->og_image)) {
+        //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->og_image);
+        //     }
+        //     $file = $request->file('og_image');
+        //     $og_image = time().rand().'.'.$file->getClientOriginalExtension();
+        //     $file->move('assets/admin/uploads/seo_metas/', $og_image);
+        //     $seoMeta->og_image = $og_image;
+        // }
+
+        // if ($request->hasFile('twitter_image')) {
+        //     if ($seoMeta->twitter_image && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->twitter_image)) {
+        //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->twitter_image);
+        //     }
+        //     $file = $request->file('twitter_image');
+        //     $twitter_image = time().rand().'.'.$file->getClientOriginalExtension();
+        //     $file->move('assets/admin/uploads/seo_metas/', $twitter_image);
+        //     $seoMeta->twitter_image = $twitter_image;
+        // }
+
+        $seoMeta->fav_icon = $request->fav_icon ?? null;
+        $seoMeta->logo = $request->logo ?? null;
+        $seoMeta->meta_image = $request->meta_image ?? null;
+        $seoMeta->og_image = $request->og_image ?? null;
+        $seoMeta->twitter_image = $request->twitter_image ?? null;
+
+        Cache::forget('seo_page_'.$seoMeta->page_slug);
+
+        $seoMeta->save();
+
+        return redirect()->route('admin.seo.meta.index')
+            ->with('notification', ['message' => 'SEO Meta Updated Successfully!', 'alert' => 'success']);
+    }
+
+    // public function delete($id)
+    // {
+    //     $seoMeta = SeoMeta::findOrFail($id);
+
+    //     if ($seoMeta->meta_image && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->meta_image)) {
+    //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->meta_image);
+    //     }
+    //     if ($seoMeta->og_image && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->og_image)) {
+    //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->og_image);
+    //     }
+    //     if ($seoMeta->twitter_image && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->twitter_image)) {
+    //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->twitter_image);
+    //     }
+    //     if ($seoMeta->fav_icon && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->fav_icon)) {
+    //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->fav_icon);
+    //     }
+    //     if ($seoMeta->logo && file_exists('assets/admin/uploads/seo_metas/'.$seoMeta->logo)) {
+    //         @unlink('assets/admin/uploads/seo_metas/'.$seoMeta->logo);
+    //     }
+
+    //     $seoMeta->delete();
+
+    //     return back()->with('notification', ['message' => 'SEO Meta Deleted Successfully!', 'alert' => 'success']);
+    // }
+
+    public function delete($id)
+    {
+        $seoMeta = SeoMeta::findOrFail($id);
+
+        // List of image fields
+        $imageFields = ['fav_icon', 'logo', 'meta_image', 'og_image', 'twitter_image'];
+
+        foreach ($imageFields as $field) {
+            if ($seoMeta->$field && file_exists(public_path($seoMeta->$field))) {
+                @unlink(public_path($seoMeta->$field)); // Remove the file
+            }
+        }
+        $pageSlug = $seoMeta->page_slug;
+        $seoMeta->delete();
+        Cache::forget('seo_page_'.$pageSlug);
+
+        return back()->with('notification', [
+            'message' => 'SEO Meta Deleted Successfully!',
+            'alert' => 'success',
+        ]);
+    }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp,ico|max:4096',
+            'type' => 'required|string', // fav_icon, logo, meta_image, etc.
+        ]);
+
+        // Delete previous image if path sent
+        if ($request->has('old_image') && file_exists(public_path($request->old_image))) {
+            @unlink(public_path($request->old_image));
+        }
+
+        $file = $request->file('image');
+        $filename = time().'_'.rand().'.'.$file->getClientOriginalExtension();
+        $path = 'assets/admin/uploads/seo_metas/'.$filename;
+
+        $file->move(public_path('assets/admin/uploads/seo_metas'), $filename);
+
+        return response()->json([
+            'success' => true,
+            'full_url' => url($path),
+            'relative_path' => $path,
+            'type' => $request->type,
+        ]);
+    }
+}

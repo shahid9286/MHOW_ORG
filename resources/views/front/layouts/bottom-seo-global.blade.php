@@ -1,0 +1,1 @@
+{!! $seoGlobal->global_body_end_scripts !!}
