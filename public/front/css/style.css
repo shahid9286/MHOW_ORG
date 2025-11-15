@@ -22546,3 +22546,65 @@ span.select2-selection.select2-selection--single:focus {
 }
 
 /*# sourceMappingURL=style.css.map */
+
+
+
+
+
+
+  .hijrah-modern-card {
+        background: var(--white-color);
+        border-radius: 12px;
+        /* replaced var(--hijrah-radius-lg) */
+        padding: 2.5rem;
+        /* replaced var(--hijrah-space-lg) */
+        height: 100%;
+        transition: all 0.3s ease;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        /* replaced var(--hijrah-shadow) */
+        border: 1px solid var(--th-border-color);
+        text-align: center;
+        position: relative;
+    }
+
+    .hijrah-modern-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+        /* replaced var(--hijrah-shadow-xl) */
+    }
+
+    .hijrah-modern-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        /* replaced var(--hijrah-space-md) */
+        font-size: 2rem;
+        color: var(--theme-color);
+        background-color: rgba(46, 125, 50, 0.1);
+        /* light green tint from --theme-color */
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .hijrah-modern-card:hover .hijrah-modern-icon {
+        background-color: var(--theme-color);
+        color: var(--white-color);
+        transform: scale(1.1);
+    }
+
+    .hijrah-modern-title {
+        font-family: var(--title-font);
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--title-color);
+    }
+
+    .hijrah-modern-text {
+        color: var(--body-color);
+        margin-bottom: 0;
+    }
