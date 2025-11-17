@@ -9,7 +9,7 @@
             <div class="col-lg-10">
                 @if (!empty($page?->hero_sub_title))
                     <h1 class="display-5 fw-bold text-white mb-4">
-                        {{ $page->hero_sub_title }} 
+                        {{ $page->hero_sub_title }}
                     </h1>
                 @endif
 
@@ -20,7 +20,7 @@
                 @endif
 
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="{{ route('front.donate.now') }}" class="th-btn py-4 px-5">
+                    <a href="{{ route('front.donate.now') }}" class="th-btn">
                         Donate Now
                     </a>
                 </div>

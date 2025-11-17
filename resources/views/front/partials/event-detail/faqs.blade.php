@@ -1,15 +1,20 @@
 @php
     $section_title = App\Models\SectionTitle::where('type', 'faq')->first();
 @endphp
-<div class="space-top space-extra-bottom">
+<div class="space-top mt-5">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-xl-7">
-                <div class="title-area text-center"><span class="sub-title">{{ $section_title->title ?? 'FAQ' }}</span>
-                    <h4 class="sec-title">{{ $section_title->subtitle ?? 'Frequently Ask Questions' }}</h4>
-                    <p>{{ $section_title->description ?? 'Have questions you want answers to?' }}</p>
-                </div>
-            </div>
+        <div class="title-area text-center">
+            @if (!empty($section_title?->description))
+                <span class="sub-title fs-6 fw-semibold d-none d-md-block">
+                    {{ $section_title->description }}
+                </span>
+            @endif
+
+            @if (!empty($section_title?->title))
+                <h4 class="sec-title pb-0">{{ $section_title->title }}</h4>
+            @endif
+
+            <div class="mx-auto" style="width:60px; height:3px; background:#A91F21;"></div>
         </div>
         <div class="row">
             <div class="col-lg-10 offset-lg-1">

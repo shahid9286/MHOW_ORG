@@ -7,53 +7,55 @@
         'subtitle' => 'Home <i class="bi bi-chevron-right"></i> Contact Us',
         'image' => 'assets/core/BreadCrumb.png',
     ])
-    
-        <div class="container mt-5">
-            <div class="title-area text-center">
-                <span class="sub-title">Get In Touch</span>
-                <h4 class="sec-title">Our Contact Information</h2>
+
+    <div class="container mt-5">
+        <div class="title-area text-center">
+            <span class="sub-title">Get In Touch</span>
+            <h4 class="sec-title">Our Contact Information</h2>
+        </div>
+        <div class="row gy-4 justify-content-center">
+            <div class="col-xl-4 col-lg-6">
+                <div class="about-contact-grid style2">
+                    <div class="about-contact-icon" style="background-color: #A91F21">
+                        <i class="bi bi-geo-alt-fill fs-2"></i>
+                    </div>
+                    <div class="about-contact-details">
+                        <h6 class="box-title" style="color: #A91F21">Our Address</h6>
+                        <p class="about-contact-details-text">{{ $setting->address }}</p>
+                    </div>
+                </div>
             </div>
-            <div class="row gy-4 justify-content-center">
-                <div class="col-xl-4 col-lg-6">
-                    <div class="about-contact-grid style2">
-                        <div class="about-contact-icon" style="background-color: #A91F21">
-                            <i class="bi bi-geo-alt-fill fs-2"></i>
-                        </div>
-                        <div class="about-contact-details">
-                            <h6 class="box-title" style="color: #A91F21">Our Address</h6>
-                            <p class="about-contact-details-text">{{ $setting->address }}</p>
-                        </div>
+            <div class="col-xl-4 col-lg-6">
+                <div class="about-contact-grid">
+                    <div class="about-contact-icon" style="background-color: #A91F21">
+                        <i class="bi bi-telephone fs-2"></i>
+                    </div>
+                    <div class="about-contact-details align-self-center">
+                        <h6 class="box-title" style="color: #A91F21">Phone Number</h6>
+                        <p class="about-contact-details-text"><a style="color: #005EB4"
+                                href="tel:{{ $setting->phone_no }}">{{ $setting->phone_no }}</a></p>
+                        @if ($setting->phone_no_2)
+                            <p class="about-contact-details-text"><a style="color: #005EB4"
+                                    href="tel:{{ $setting->phone_no_2 }}">{{ $setting->phone_no_2 }}</a></p>
+                        @endif
                     </div>
                 </div>
-                <div class="col-xl-4 col-lg-6">
-                    <div class="about-contact-grid">
-                        <div class="about-contact-icon" style="background-color: #A91F21">
-                            <i class="bi bi-telephone fs-2"></i>
-                        </div>
-                        <div class="about-contact-details align-self-center">
-                            <h6 class="box-title" style="color: #A91F21">Phone Number</h6>
-                            <p class="about-contact-details-text" ><a style="color: #005EB4" href="tel:{{ $setting->phone_no }}">{{ $setting->phone_no }}</a></p>
-                            @if ($setting->phone_no_2)
-                                <p class="about-contact-details-text"><a style="color: #005EB4" href="tel:{{ $setting->phone_no_2 }}">{{ $setting->phone_no_2 }}</a></p>
-                            @endif
-                        </div>
+            </div>
+            <div class="col-xl-4 col-lg-6">
+                <div class="about-contact-grid py-4">
+                    <div class="about-contact-icon" style="background-color: #A91F21">
+                        <i class="bi bi-envelope fs-2"></i>
                     </div>
-                </div>
-                <div class="col-xl-4 col-lg-6">
-                    <div class="about-contact-grid py-4">
-                        <div class="about-contact-icon" style="background-color: #A91F21">
-                            <i class="bi bi-envelope fs-2"></i>
-                        </div>
-                        <div class="about-contact-details align-self-center">
-                            <h6 class="box-title" style="color: #A91F21">Email Address</h6>
-                            <p class="about-contact-details-text "><a style="color: #005EB4"
-                                    href="mailto:{{ $setting->email }}">{{ $setting->email }}</a></p>
-                        </div>
+                    <div class="about-contact-details align-self-center">
+                        <h6 class="box-title" style="color: #A91F21">Email Address</h6>
+                        <p class="about-contact-details-text "><a style="color: #005EB4"
+                                href="mailto:{{ $setting->email }}">{{ $setting->email }}</a></p>
                     </div>
                 </div>
             </div>
         </div>
-        
+    </div>
+
     @include('front.partials.contact-us.contact-us-form')
     <div class="container-fluid">
         <div class="contact-map style2">

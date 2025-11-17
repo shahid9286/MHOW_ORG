@@ -1,5 +1,5 @@
 @extends('front.layouts.master')
-@section('title', $page->title)
+@section('title', $event->name)
 @section('css')
     <style>
         .mhow-images {
@@ -32,7 +32,7 @@
 
     @if ($page->sections)
         @include('front.partials.event-detail.sections')
-    @endif 
+    @endif
 
     @if ($page->elements)
         @include('front.partials.event-detail.elements')
@@ -50,8 +50,6 @@
         @include('front.partials.event-detail.why-us-images')
     @endif
 
-    @if ($page->introductionSections)
-        @include('front.partials.event-detail.intro-sections')
-    @endif
+    @include('front.partials.project-detail.project-footer-map')
 
 @endsection

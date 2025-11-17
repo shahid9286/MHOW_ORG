@@ -1,4 +1,4 @@
-<section class="donate-two pt-0">
+<section class="donate-two mt-5">
     <div class="container">
         <div class="title-area text-center">
             <span class="sub-title fs-6 fw-semibold  d-none d-md-block">Become a Donate Now</span>
@@ -45,22 +45,3 @@
         </div>
     </div>
 </section>
-
-<section class="video-three">
-    <div class="video-three__bg jarallax" data-jarallax data-speed="0.3" data-imgPosition="50% -100%"
-        style="background-image: url({{ asset('assets/core') }}/video-bg-3-1.jpg);"></div> <!-- /.video-three__bg -->
-    <div class="video-three__shape" style="background-image: url(assets/images/shapes/video-shape-3.png);"></div>
-    <!-- /.video-three__shape -->
-    <div class="video-three__overlay"></div><!-- /.video-three__overlay -->
-    <div class="container">
-        <h5 class="video-three__sub-title">Make a Difference Today</h5>
-        <h2 class="video-three__title">Support the Mission of MHOW</h2>
-        <p class="video-three__text">
-            Your generosity fuels our efforts to uplift vulnerable communities through education, relief, and
-            empowerment.<br>
-            Every donation brings us one step closer to a more compassionate and just world. Join us in creating lasting
-            impact.
-        </p>
-        <a href="{{ route('front.about') }}" class="careox-btn"><span>Discover More</span></a>
-    </div><!-- /.container -->
-</section><!-- /.video-three -->

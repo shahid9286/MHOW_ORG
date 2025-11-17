@@ -1,40 +1,87 @@
-@foreach ($page->elements as $element)
-    <div class="about-area position-relative space" id="about-sec">
-        <div class="container shape-mockup-wrap">
+@php
+    $section_title = App\Models\SectionTitle::where('type', 'element')->first();
+@endphp
+
+@foreach ($page->elements ?? [] as $element)
+<section class="hijrah-option-section" data-aos="fade-up" id="eventDetail">
+    <div class="container-fluid px-5 mt-5">
+
+        {{-- Section Titles --}}
+        <div class="title-area text-center">
+            @if (!empty($section_title?->subtitle))
+                <span class="sub-title">{{ $section_title->subtitle }}</span>
+            @endif
+
+            @if (!empty($section_title?->title))
+                <h4 class="sec-title">{{ $section_title->title }}</h4>
+            @endif
+
+            <div class="mx-auto" style="width:60px; height:3px; background:#A91F21;"></div>
+        </div>
+
+        <div class="hijrah-info-box">
             <div class="row">
-                <div class="col-xl-5 align-self-center">
-                    <div class="img-box3">
-                        <div class="img1"><img src="{{ asset($element->image) }}" alt="About"></div>
-                    </div>
+
+                {{-- LEFT COLUMN: Main Title + Description + Image --}}
+                <div class="col-lg-6 hijrah-mb-4" 
+                    data-aos="fade-up" 
+                    data-aos-delay="500" 
+                    data-aos-duration="1200">
+
+                    {{-- Element Image --}}
+                    @if (!empty($element?->image))
+                        <img 
+                            src="{{ asset($element->image) }}" 
+                            alt="image" 
+                            class="img-fluid mt-3 rounded"
+                        >
+                    @endif
                 </div>
-                <div class="col-xl-7">
-                    <div class="ps-xl-4">
-                        <div class="title-area mb-20"><span class="sub-title style1">{{ $element->subtitle }}</span>
-                            <h2 class="sec-title mb-20 pe-xl-5 me-xl-5 heading">{{ $element->title }}
-                            </h2>
+
+                {{-- RIGHT COLUMN: Features --}}
+                <div class="col-lg-6 hijrah-mb-4">
+
+
+                    {{-- Element Title --}}
+                    @if (!empty($element?->title))
+                        <h2 class="h4 hijrah-text-primary"
+                            style="margin-bottom:15px; font-weight:700; line-height:1.333; font-size:30px; font-family:Manrope, sans-serif; color:#1B4332;">
+                            {{ $element->title }}
+                        </h2>
+                    @endif
+
+                    {{-- Element Description --}}
+                    @if (!empty($element?->description))
+                        <div style="font-family:Inter, sans-serif; color:#4F6F52; line-height:1.75;">
+                            {!! $element->description !!}
                         </div>
-                        <p class="pe-xl-5">{!! $element->description !!}</p>
-                        <div class="about-item-wrap">
-                            @foreach ($element->features as $feature)
-                                <div class="about-item style2 w-100">
-                                    <div class="about-item_img">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px"
-                                            viewBox="0 0 50 50">
-                                            <path
-                                                d="M 25 2 C 12.317 2 2 12.317 2 25 C 2 37.683 12.317 48 25 48 C 37.683 48 48 37.683 48 25 C 48 20.44 46.660281 16.189328 44.363281 12.611328 L 42.994141 14.228516 C 44.889141 17.382516 46 21.06 46 25 C 46 36.579 36.579 46 25 46 C 13.421 46 4 36.579 4 25 C 4 13.421 13.421 4 25 4 C 30.443 4 35.393906 6.0997656 39.128906 9.5097656 L 40.4375 7.9648438 C 36.3525 4.2598437 30.935 2 25 2 z M 43.236328 7.7539062 L 23.914062 30.554688 L 15.78125 22.96875 L 14.417969 24.431641 L 24.083984 33.447266 L 44.763672 9.046875 L 43.236328 7.7539062 z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                    <div class="about-item_centent">
-                                        <h5 class="box-title">{{ $feature->title }}</h5>
-                                        <p class="about-item_text">{{ $feature->description }}</p>
-                                    </div>
+                    @endif
+                    @foreach ($element->features ?? [] as $feature)
+                        @if (!empty($feature?->title) || !empty($feature?->description))
+                            <div class="hijrah-info-item hijrah-option1-item" data-aos="zoom-in">
+
+                                <div class="hijrah-info-icon">
+                                    <i class="bi bi-star-fill"></i>
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
+
+                                <div class="hijrah-info-content">
+                                    @if (!empty($feature?->title))
+                                        <h5 class="hijrah-info-title m-0">{{ $feature->title }}</h5>
+                                    @endif
+
+                                    @if (!empty($feature?->description))
+                                        <p class="mb-0">{{ $feature->description }}</p>
+                                    @endif
+                                </div>
+
+                            </div>
+                        @endif
+                    @endforeach
+
                 </div>
+
             </div>
         </div>
     </div>
+</section>
 @endforeach

@@ -5,8 +5,8 @@
     {{-- <link rel="stylesheet" href="{{ asset('website/assets/vendors/careox-icons/style.css') }}" />
 
     <link rel="stylesheet" href="{{ asset('website/assets/css/careox.css') }}" /> --}}
+    <link rel="stylesheet" href="{{ asset('front/css/custom2.css') }}" />
     <style>
-      
 
     </style>
 

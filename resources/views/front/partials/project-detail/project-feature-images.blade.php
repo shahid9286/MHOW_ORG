@@ -2,69 +2,73 @@
     $section_title = App\Models\SectionTitle::where('type', 'feature_image')->first();
 @endphp
 
-@if (!empty($section_title?->title) || !empty($section_title?->description) || (!empty($page?->featureImages) && count($page->featureImages)))
-    <section class="country-one">
+@if (
+    !empty($section_title?->title) ||
+        !empty($section_title?->description) ||
+        (!empty($page?->featureImages) && count($page->featureImages)))
+    <section class="country-one mt-5">
         <div class="container">
-            <div class="sec-title text-left">
+
+            {{-- Section Title --}}
+            <div class="title-area text-center">
                 @if (!empty($section_title?->description))
-                    <h3 class="sec-title__title bw-split-in-left text-dark">
-                        {!! $section_title->description !!}
-                    </h3>
-                @endif
-                @if (!empty($section_title?->title))
-                    <h6 class="sec-title__tagline bw-split-in-right">
-                        <span class="sec-title__tagline__border"></span>{{ $section_title->title }}
-                    </h6>
+                    <span class="sub-title fs-6 fw-semibold d-none d-md-block">
+                        {{ $section_title->description }}
+                    </span>
                 @endif
 
+                @if (!empty($section_title?->title))
+                    <h4 class="sec-title pb-0">{{ $section_title->title }}</h4>
+                @endif
+
+                <div class="mx-auto" style="width:60px; height:3px; background:#A91F21;"></div>
             </div>
 
+
+            {{-- Feature Items --}}
             @if (!empty($page?->featureImages) && count($page->featureImages))
-                <div class="country-one__carousel careox-owl__carousel owl-carousel"
-                    data-owl-options='{
-                        "items": 1,
-                        "margin": 30,
-                        "loop": false,
-                        "smartSpeed": 700,
-                        "nav": true,
-                        "navText": ["<span class=\"icon-up-arrow-two\"></span>","<span class=\"icon-down-arrow-two\"></span>"],
-                        "dots": false,
-                        "autoplay": false,
-                        "responsive": {
-                            "0": { "items": 1 },
-                            "500": { "items": 2 },
-                            "992": { "items": 3 },
-                            "1200": { "items": 4 }
-                        }
-                    }'>
+                <div class="row gy-4 justify-content-center">
+
                     @foreach ($page->featureImages as $index => $image)
                         @php
                             $hasImage = !empty($image?->image);
                             $hasTitle = !empty($image?->title);
                             $hasSubtitle = !empty($image?->subtitle);
                         @endphp
+
                         @if ($hasImage || $hasTitle || $hasSubtitle)
-                            <div class="item">
-                                <div class="country-one__item text-center wow fadeInUp" data-wow-delay="{{ $index * 50 }}ms">
+                            <div class="col-md-6 col-xl-3">
+                                <div class="feature-item th-ani wow fadeInUp" data-wow-delay="{{ $index * 80 }}ms">
+
+                                    {{-- Icon / Image --}}
                                     @if ($hasImage)
-                                        <div class="country-one__item__flag">
-                                            <img src="{{ asset($image->image) }}" alt="MHOW-WHY">
+                                        <div class="feature-item_icon">
+                                            <img src="{{ asset($image->image) }}" alt="Feature Icon" width="100px">
                                         </div>
                                     @endif
 
-                                    @if ($hasTitle)
-                                        <h3 class="country-one__item__title">{{ $image->title }}</h3>
-                                    @endif
+                                    <div class="media-body">
 
-                                    @if ($hasSubtitle)
-                                        <p class="country-one__item__text">{{ $image->subtitle }}</p>
-                                    @endif
+                                        {{-- Title --}}
+                                        @if ($hasTitle)
+                                            <h3 class="box-title">{{ $image->title }}</h3>
+                                        @endif
+
+                                        {{-- Subtitle --}}
+                                        @if ($hasSubtitle)
+                                            <p class="feature-item_text">{{ $image->subtitle }}</p>
+                                        @endif
+
+                                    </div>
+
                                 </div>
                             </div>
                         @endif
                     @endforeach
+
                 </div>
             @endif
+
         </div>
     </section>
 @endif

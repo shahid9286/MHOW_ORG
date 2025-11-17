@@ -1,89 +1,87 @@
 @php
     $section_title = App\Models\SectionTitle::where('type', 'element')->first();
-    $colors = ['#ffa415', '#fc5528', '#8139e7', '#44c895', '#399be7', '#d340c3'];
 @endphp
 
 @foreach ($page->elements ?? [] as $element)
-    <section class="tab-one">
-        <div class="container">
-            <div class="title-area text-center">
-                @if (!empty($section_title->subtitle))
-                    <span class="sub-title">{{ $section_title->subtitle }}</span>
-                @endif
-                @if (!empty($section_title->title))
-                    <h4 class="sec-title">{{ $section_title->title }}</h2>
-                @endif
-            </div>
+<section class="hijrah-option-section" data-aos="fade-up" id="eventDetail">
+    <div class="container-fluid px-5 mt-5">
 
-            <div class="tab-one__wrapper tabs-box">
-                <div class="tabs-content">
-                    <div class="tab fadeInUp animated active-tab" id="medical">
-                        <div class="tab-one__content">
-                            <div class="tab-one__content__bg"
-                                style="background-image: url({{ asset('assets/core/tab-bg.jpg') }});"></div>
-                            <div class="row">
-                                <div class="col-lg-6" style="padding: 30px 0px 69px 30px !important;">
-                                    <div class="tab-one__content__image">
-                                        <div class="row">
-                                            <div class="col">
-                                                <div class="sec-title text-left">
-                                                    <div class="title-area">
-                                                        @if (!empty($element->title))
-                                                            <h3
-                                                                class="sec-title pb-0">{{ $element->title }}</h3>
-                                                        @endif
-                                                    </div>
+        {{-- Section Titles --}}
+        <div class="title-area text-center">
+            @if (!empty($section_title?->subtitle))
+                <span class="sub-title">{{ $section_title->subtitle }}</span>
+            @endif
 
-                                                    @if (!empty($element?->description))
-                                                        <p>{!! $element->description !!}</p>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
+            @if (!empty($section_title?->title))
+                <h4 class="sec-title">{{ $section_title->title }}</h4>
+            @endif
 
-                                        @if (!empty($element?->image))
-                                            <img src="{{ asset($element->image) }}" alt="careox">
-                                        @endif
+            <div class="mx-auto" style="width:60px; height:3px; background:#A91F21;"></div>
+        </div>
 
-                                        <div class="tab-one__content__image__shape" style="background-image: url();">
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="hijrah-info-box">
+            <div class="row">
 
-                                <div class="col-lg-6 d-flex">
-                                    <div class="tab-one__content__right">
-                                        @if (!empty($element?->subtitle))
-                                            <h3 class="tab-one__content__title">{{ $element->subtitle }}</h3>
-                                        @endif
+                {{-- LEFT COLUMN: Main Title + Description + Image --}}
+                <div class="col-lg-6 hijrah-mb-4" 
+                    data-aos="fade-up" 
+                    data-aos-delay="500" 
+                    data-aos-duration="1200">
 
-                                        @foreach ($element->features ?? [] as $index => $feature)
-                                            @if (!empty($feature?->title) || !empty($feature?->description))
-                                                <div class="tab-one__content__box"
-                                                    style="--accent-color: {{ $colors[$index % count($colors)] }}">
-                                                    <div class="tab-one__content__box__icon">
-                                                        <i class="bi bi-check-circle"></i>
-                                                    </div>
-
-                                                    @if (!empty($feature?->title))
-                                                        <h3 class="tab-one__content__box__title">{{ $feature->title }}
-                                                        </h3>
-                                                    @endif
-
-                                                    @if (!empty($feature?->description))
-                                                        <p class="tab-one__content__box__text">
-                                                            {{ $feature->description }}
-                                                        </p>
-                                                    @endif
-                                                </div>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {{-- Element Image --}}
+                    @if (!empty($element?->image))
+                        <img 
+                            src="{{ asset($element->image) }}" 
+                            alt="image" 
+                            class="img-fluid mt-3 rounded"
+                        >
+                    @endif
                 </div>
+
+                {{-- RIGHT COLUMN: Features --}}
+                <div class="col-lg-6 hijrah-mb-4">
+
+
+                    {{-- Element Title --}}
+                    @if (!empty($element?->title))
+                        <h2 class="h4 hijrah-text-primary"
+                            style="margin-bottom:15px; font-weight:700; line-height:1.333; font-size:30px; font-family:Manrope, sans-serif; color:#1B4332;">
+                            {{ $element->title }}
+                        </h2>
+                    @endif
+
+                    {{-- Element Description --}}
+                    @if (!empty($element?->description))
+                        <div style="font-family:Inter, sans-serif; color:#4F6F52; line-height:1.75;">
+                            {!! $element->description !!}
+                        </div>
+                    @endif
+                    @foreach ($element->features ?? [] as $feature)
+                        @if (!empty($feature?->title) || !empty($feature?->description))
+                            <div class="hijrah-info-item hijrah-option1-item" data-aos="zoom-in">
+
+                                <div class="hijrah-info-icon">
+                                    <i class="bi bi-star-fill"></i>
+                                </div>
+
+                                <div class="hijrah-info-content">
+                                    @if (!empty($feature?->title))
+                                        <h5 class="hijrah-info-title m-0">{{ $feature->title }}</h5>
+                                    @endif
+
+                                    @if (!empty($feature?->description))
+                                        <p class="mb-0">{{ $feature->description }}</p>
+                                    @endif
+                                </div>
+
+                            </div>
+                        @endif
+                    @endforeach
+
+                </div>
+
             </div>
         </div>
-    </section>
+    </div>
+</section>
 @endforeach
