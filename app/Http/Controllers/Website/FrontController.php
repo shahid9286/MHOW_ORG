@@ -40,7 +40,9 @@ use PayPal\Api\Transaction;
 use PayPal\Auth\OAuthTokenCredential;
 use PayPal\Rest\ApiContext;
 use Redirect;
+
 /** All Paypal Details class **/
+
 use Session;
 use Str;
 use Stripe\Charge;
@@ -91,7 +93,6 @@ class FrontController extends Controller
         $page = Page::where('slug', $slug)->first();
 
         return view('website.project-detail', compact('project', 'page'));
-        
     }
 
     public function events()
@@ -192,7 +193,7 @@ class FrontController extends Controller
                     'amount' => $ticket->amount * 100,
                     'currency' => 'gbp',
                     'source' => $request->stripeToken,
-                    'description' => 'Payment for event ticket: '.$ticket->title,
+                    'description' => 'Payment for event ticket: ' . $ticket->title,
                     'metadata' => [
                         'event_id' => $request->event_id,
                         'customer_name' => $request->name,
@@ -230,17 +231,17 @@ class FrontController extends Controller
         } catch (CardException $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Payment failed: '.$e->getMessage(),
+                'message' => 'Payment failed: ' . $e->getMessage(),
             ], 400);
         } catch (ApiErrorException $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Payment processing error: '.$e->getMessage(),
+                'message' => 'Payment processing error: ' . $e->getMessage(),
             ], 500);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -381,7 +382,7 @@ class FrontController extends Controller
                 'amount' => round($validated['amount'] * 100), // Convert to cents
                 'currency' => 'gbp',
                 'source' => $validated['stripeToken'],
-                'description' => 'Donation from '.$validated['name'],
+                'description' => 'Donation from ' . $validated['name'],
                 'metadata' => [
                     'donor_name' => $validated['name'],
                     'donor_email' => $validated['email'],
@@ -406,7 +407,7 @@ class FrontController extends Controller
                 ['name' => 'stripe'],
                 ['name' => 'stripe']
             );
-            $receiptNo = 'DON-'.strtoupper(Str::random(8)).'-'.now()->format('Ymd');
+            $receiptNo = 'DON-' . strtoupper(Str::random(8)) . '-' . now()->format('Ymd');
             $donation = Donation::create([
                 'donor_id' => $donor->id,
                 'campaign_id' => $validated['campaign_id'] ?? null,
@@ -428,15 +429,15 @@ class FrontController extends Controller
         } catch (CardException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Payment failed: '.$e->getMessage(),
+                'message' => 'Payment failed: ' . $e->getMessage(),
             ], 400);
         } catch (InvalidRequestException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid request: '.$e->getMessage(),
+                'message' => 'Invalid request: ' . $e->getMessage(),
             ], 400);
         } catch (\Exception $e) {
-            Log::error('Donation error: '.$e->getMessage());
+            Log::error('Donation error: ' . $e->getMessage());
 
             return response()->json([
                 'success' => false,
@@ -454,6 +455,9 @@ class FrontController extends Controller
         if (! $event) {
             abort(404);
         }
+        
+        if ($slug == 'telethon')
+            return view('website.page.telethon', compact('event', 'fields', 'tickets'));
 
         if ($event->layout_type == 'old') {
             if ($event->event_type == 'paid') {
@@ -463,6 +467,7 @@ class FrontController extends Controller
 
             return view('website.page.view', compact('event', 'fields', 'tickets'));
         }
+
         $page = Page::where('slug', $slug)->first();
 
         return view('front.pages.event-detail', compact('event', 'page', 'fields', 'tickets'));
@@ -471,24 +476,24 @@ class FrontController extends Controller
     public function freeBooking(Request $request)
     {
         // Validate main request fields
-            $request->validate([
-                'name' => 'required|string|min:2|max:255',
-                'phone_no' => 'required|string|min:2|max:255',
-                'email' => 'required|email',
-                // 'date_of_birth' => 'required',
-                'gender' => 'required|string|in:male,female',
-                'source' => 'required|string|in:facebook,youtube,instagram,tiktok,whatsapp,email',
-                'event_id' => 'required|exists:events,id',
-                'ticket_id' => $request->has('ticket_id') ? 'required|exists:event_tickets,id' : 'nullable',
-                'event_schedule_id' => $request->has('event_schedule_id') ? 'required|exists:event_schedules,id' : 'nullable',
-                // 'country' => $request->has('country') ? 'required|string|max:255' : 'nullable',
-            ]);
+        $request->validate([
+            'name' => 'required|string|min:2|max:255',
+            'phone_no' => 'required|string|min:2|max:255',
+            'email' => 'required|email',
+            // 'date_of_birth' => 'required',
+            'gender' => 'required|string|in:male,female',
+            'source' => 'required|string|in:facebook,youtube,instagram,tiktok,whatsapp,email',
+            'event_id' => 'required|exists:events,id',
+            'ticket_id' => $request->has('ticket_id') ? 'required|exists:event_tickets,id' : 'nullable',
+            'event_schedule_id' => $request->has('event_schedule_id') ? 'required|exists:event_schedules,id' : 'nullable',
+            // 'country' => $request->has('country') ? 'required|string|max:255' : 'nullable',
+        ]);
 
         // Validate extra fields
         $fields = EventExtraField::where('event_id', $request->event_id)->get();
         $rules = [];
         foreach ($fields as $field) {
-            $rules['extra.'.$field->field_name] = $field->is_required ? 'required' : 'nullable';
+            $rules['extra.' . $field->field_name] = $field->is_required ? 'required' : 'nullable';
         }
         $request->validate($rules);
 
@@ -534,7 +539,7 @@ class FrontController extends Controller
             // Save extra field values
             if ($request->has('extra')) {
                 foreach ($fields as $field) {
-                    $value = $request->input('extra.'.$field->field_name);
+                    $value = $request->input('extra.' . $field->field_name);
                     if (! is_null($value)) {
                         BookingFieldValue::create([
                             'event_extra_field_id' => $field->id,
@@ -556,7 +561,7 @@ class FrontController extends Controller
         } catch (\Exception $e) {
             return $e->getMessage();
             DB::rollBack();
-            Log::error('Free booking failed: '.$e->getMessage());
+            Log::error('Free booking failed: ' . $e->getMessage());
 
             return back()
                 ->withInput()
@@ -775,7 +780,7 @@ class FrontController extends Controller
         $fields = EventExtraField::where('event_id', $request->event_id)->get();
         $rules = [];
         foreach ($fields as $field) {
-            $rules['extra.'.$field->field_name] = $field->is_required ? 'required' : 'nullable';
+            $rules['extra.' . $field->field_name] = $field->is_required ? 'required' : 'nullable';
         }
         $extraData = $request->validate($rules)['extra'] ?? [];
         if (! is_array($extraData)) {
@@ -802,7 +807,7 @@ class FrontController extends Controller
                     'currency' => 'gbp',
                     'payment_method' => $request->payment_method_id,
                     'confirm' => true,
-                    'description' => 'Booking for '.$event->title,
+                    'description' => 'Booking for ' . $event->title,
                     'metadata' => [
                         'event_id' => $event->id,
                         'ticket_id' => $ticket->id,
@@ -831,7 +836,7 @@ class FrontController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'redirect_url' => route('front.event.detail', $event->slug).'?payment-success=1',
+                    'redirect_url' => route('front.event.detail', $event->slug) . '?payment-success=1',
                 ]);
             } catch (CardException $e) {
                 return $this->handlePaymentError($e->getError()->message, 400);
@@ -844,8 +849,7 @@ class FrontController extends Controller
 
         /* --------------------------------
            PAYPAL PAYMENT
-        -------------------------------- */
-        elseif ($request->payment_gateway === 'paypal') {
+        -------------------------------- */ elseif ($request->payment_gateway === 'paypal') {
             \Log::info('Processing PayPal payment', ['amount' => $totalAmount]);
 
             try {
@@ -878,11 +882,11 @@ class FrontController extends Controller
                                 'currency_code' => 'GBP',
                                 'value' => number_format($totalAmount, 2, '.', ''),
                             ],
-                            'description' => 'Booking for '.$event->title,
+                            'description' => 'Booking for ' . $event->title,
                         ]],
                         'application_context' => [
                             'return_url' => route('event.paypal.status', ['event_slug' => $event->slug]),
-                            'cancel_url' => route('front.event.detail', $event->slug).'?payment-cancel=1',
+                            'cancel_url' => route('front.event.detail', $event->slug) . '?payment-cancel=1',
                         ],
                     ]);
 
@@ -926,11 +930,10 @@ class FrontController extends Controller
                     'success' => true,
                     'redirect_url' => $approveLink,
                 ]);
-
             } catch (\Exception $ex) {
                 \Log::error('PayPal error', ['message' => $ex->getMessage()]);
 
-                return $this->handlePaymentError('An unexpected error occurred: '.$ex->getMessage(), 500);
+                return $this->handlePaymentError('An unexpected error occurred: ' . $ex->getMessage(), 500);
             }
         }
     }
@@ -947,7 +950,7 @@ class FrontController extends Controller
         if (! $orderId) {
             \Log::error('No PayPal order ID found');
 
-            return Redirect::to(route('front.event.detail', $event_slug).'?payment-failed=1');
+            return Redirect::to(route('front.event.detail', $event_slug) . '?payment-failed=1');
         }
 
         // Get Access Token again
@@ -960,7 +963,7 @@ class FrontController extends Controller
         if (! $accessToken) {
             \Log::error('Failed to get PayPal access token');
 
-            return Redirect::to(route('front.event.detail', $event_slug).'?payment-failed=1');
+            return Redirect::to(route('front.event.detail', $event_slug) . '?payment-failed=1');
         }
 
         // Capture order
@@ -997,19 +1000,19 @@ class FrontController extends Controller
 
             \Log::info('PayPal payment completed and booking created', ['booking_id' => $booking->id]);
 
-            return Redirect::to(route('front.event.detail', $event_slug).'?payment-success=1');
+            return Redirect::to(route('front.event.detail', $event_slug) . '?payment-success=1');
         }
 
         \Log::error('PayPal capture failed', ['response' => $data]);
 
-        return Redirect::to(route('front.event.detail', $event_slug).'?payment-failed=1');
+        return Redirect::to(route('front.event.detail', $event_slug) . '?payment-failed=1');
     }
 
     protected function createDonorRecord($request, $donationAmount, $paymentIntentId, $event)
     {
         try {
             // Generate a unique account name
-            $accountName = 'donor_'.time().'_'.substr(md5($request->email.$request->name), 0, 8);
+            $accountName = 'donor_' . time() . '_' . substr(md5($request->email . $request->name), 0, 8);
 
             // Get country ID if country name is provided
             $countryId = null;
@@ -1035,7 +1038,7 @@ class FrontController extends Controller
             );
 
             // Generate receipt number
-            $receiptNo = 'RCPT-'.date('Ymd').'-'.strtoupper(substr(md5(time().$donor->id), 0, 8));
+            $receiptNo = 'RCPT-' . date('Ymd') . '-' . strtoupper(substr(md5(time() . $donor->id), 0, 8));
 
             // Get payment method (assuming you have a default one for online payments)
             $paymentMethod = PaymentMethod::where('name', 'like', '%stripe%')
@@ -1055,7 +1058,7 @@ class FrontController extends Controller
                 'transaction_id' => $paymentIntentId,
                 'receipt_no' => $receiptNo,
                 'donation_date' => now(),
-                'message' => 'Donation made during event registration: '.$event->title,
+                'message' => 'Donation made during event registration: ' . $event->title,
                 'payment_method_id' => $paymentMethod->id,
                 'donation_source_id' => $this->getDonationSourceId($request->source),
                 'created_by' => auth()->id() ?? null,
@@ -1064,7 +1067,7 @@ class FrontController extends Controller
             return $donor;
         } catch (\Exception $e) {
             // Log the error but don't fail the entire transaction
-            \Log::error('Failed to create donor record: '.$e->getMessage());
+            \Log::error('Failed to create donor record: ' . $e->getMessage());
 
             return null;
         }
@@ -1351,7 +1354,7 @@ class FrontController extends Controller
                 ]);
         } catch (\Exception $e) {
             return redirect()->route('front.event.detail', $event->slug ?? 'home')
-                ->with(['error' => 'Failed to complete booking: '.$e->getMessage()]);
+                ->with(['error' => 'Failed to complete booking: ' . $e->getMessage()]);
         }
     }
 
@@ -1409,7 +1412,7 @@ class FrontController extends Controller
                 ])->payment_intent;
 
             $returnUrl = filter_var(
-                rtrim('http://127.0.0.1:8000', '/').'/payment/return',
+                rtrim('http://127.0.0.1:8000', '/') . '/payment/return',
                 FILTER_SANITIZE_URL
             );
 
@@ -1470,10 +1473,8 @@ class FrontController extends Controller
         return view('website.page.donation-success');
     }
 
-    public function projectDetailTest(){
+    public function projectDetailTest()
+    {
         return view('front.pages.project-detail', compact('project', 'page'));
     }
 }
-
-
-    

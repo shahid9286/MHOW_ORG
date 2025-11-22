@@ -1,6 +1,6 @@
 <style>
     .pricing-section {
-        background: #000;
+        background: #fff;
         padding: 60px 0;
         color: #fff;
     }
@@ -48,16 +48,16 @@
     }
 </style>
 
-<div class="pricing-section">
+<div class="">
     <div class="container">
-        <h1 class="text-center mb-5">World Peace Movement World Tour</h1>
+        <h3 class="text-center mb-5 mt-4">World Peace Movement World Tour</h3>
 
         <div class="row">
 
             {{-- £10 Plan --}}
             <div class="col-md-4 mb-4">
                 <div class="pricing-card">
-                    <h2>World Peace Movement World Tour</h2>
+                    <h2 class="text-white">World Peace Movement World Tour</h2>
                     <p class="pricing-quote">
                         “The Prophet ﷺ said: ‘When a man dies, his deeds come to an end except for three things:
                         Sadaqah Jariyah (ceaseless charity)...”
@@ -73,7 +73,7 @@
             </div>
             <div class="col-md-4 mb-4">
                 <div class="pricing-card">
-                    <h2>World Peace Movement World Tour</h2>
+                    <h2 class="text-white">World Peace Movement World Tour</h2>
                     <p class="pricing-quote">
                         “The Prophet ﷺ said: ‘When a man dies, his deeds come to an end except for three things:
                         Sadaqah Jariyah (ceaseless charity)...”
@@ -91,7 +91,7 @@
             {{-- £50 Plan --}}
             <div class="col-md-4 mb-4">
                 <div class="pricing-card">
-                    <h2>World Peace Movement World Tour</h2>
+                    <h2 class="text-white">World Peace Movement World Tour</h2>
                     <p class="pricing-quote">
                         “The Prophet ﷺ said: ‘When a man dies, his deeds come to an end except for three things:
                         Sadaqah Jariyah (ceaseless charity)...”
