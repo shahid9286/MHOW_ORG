@@ -16,7 +16,7 @@
                         </div>
                         <div class="destination-content"
                             style="background-color: #063A68; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px;">
-                            <h3 class="box-title mb-2 text-white"><a href="{{ route('front.project.detail', ['slug' => $event->slug]) }}">{{ $event->title }}</a></h3>
+                            <h3 class="box-title mb-2 text-white"><a href="{{ route('front.event.detail', ['slug' => $event->slug]) }}">{{ $event->title }}</a></h3>
                             <a href="{{ route('front.event.detail', ['slug' => $event->slug]) }}" class="th-btn th-icon" style="background-color: #A91F21;">Detail</a>
                         </div>
                     </div>
