@@ -16,9 +16,9 @@ class DonorsImport implements ToCollection, WithHeadingRow
     {
         foreach ($rows as $index => $row) {
             try {
-                if (empty(trim($row['account_name'] ?? ''))) {
-                    throw new \Exception('Account name is missing');
-                }
+                // if (empty(trim($row['account_name'] ?? ''))) {
+                //     throw new \Exception('Account name is missing');
+                // }
 
              
                 $country = null;
@@ -37,7 +37,7 @@ class DonorsImport implements ToCollection, WithHeadingRow
                 // }
                 $donorData = [
                     'name' => ! empty(trim($row['name'] ?? '')) ? trim($row['name']) : null,
-                    'account_name' => ! empty(trim($row['account_name'] ?? '')) ? trim($row['account_name']) : null,
+                    'account_name' => ! empty(trim($row['last_name'] ?? '')) ? trim($row['last_name']) : null,
                     'email' => ! empty(trim($row['email'] ?? '')) ? trim($row['email']) : null,
                     'phone' => ! empty(trim($row['phone'] ?? '')) ? trim($row['phone']) : null,
                     'country_id' => $country ? $country->id : null,

@@ -18,7 +18,7 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <div class="form-group">
-                                            <label for="account_name">Account Name</label>
+                                            <label for="account_name">Last Name</label>
                                             <select class="form-control select2" name="account_name" id="account_name">
                                                 <option value="">Search Account Name</option>
                                                 @foreach ($donors->unique('account_name') as $donor)
@@ -121,7 +121,7 @@
                                     <th><input type="checkbox" id="selectAll"></th>
                                     <th>#</th>
                                     <th>Name</th>
-                                    <th>Account Name</th>
+                                    <th>Last Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Status</th>

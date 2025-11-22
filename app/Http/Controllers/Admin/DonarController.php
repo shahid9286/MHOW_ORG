@@ -41,7 +41,7 @@ class DonarController extends Controller
     {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'account_name' => 'nullable|string',
+                'last_name' => 'nullable|string',
                 'email' => 'nullable|email|max:255',
                 'phone' => 'nullable|string|max:15',
                 'whatsapp_no' => ['nullable', 'string', 'max:15', 'regex:/^\+?[0-9]{7,15}$/'],
@@ -56,7 +56,7 @@ class DonarController extends Controller
 
         $donor = new Donor;
         $donor->name = $request->name;
-        $donor->account_name = $request->account_name;
+        $donor->account_name = $request->last_name;
         $donor->email = $request->email;
         $donor->phone = $request->phone;
         $donor->whatsapp_no = $request->whatsapp_no;
@@ -95,7 +95,7 @@ class DonarController extends Controller
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
-                'account_name' => 'nullable|string',
+                'last_name' => 'nullable|string',
                 'email' => 'nullable|email|max:255',
                 'phone' => 'nullable|string|max:15',
                 'whatsapp_no' => 'nullable|string|max:15',
@@ -112,7 +112,7 @@ class DonarController extends Controller
         }
 
         $donor->name = $request->name;
-        $donor->account_name = $request->account_name;
+        $donor->account_name = $request->last_name;
         $donor->email = $request->email;
         $donor->phone = $request->phone;
         $donor->whatsapp_no = $request->whatsapp_no;

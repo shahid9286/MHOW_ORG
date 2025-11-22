@@ -34,11 +34,11 @@
 
                                     <!-- Account Name -->
                                     <div class="col-md-4">
-                                        <label for="account_name">Account Name </label>
-                                        <input type="text" name="account_name" id="account_name"
-                                            class="form-control form-control-sm" value="{{ old('account_name') }}"
-                                            placeholder="Enter Account Name">
-                                        @error('account_name')
+                                        <label for="last_name">Last Name </label>
+                                        <input type="text" name="last_name" id="last_name"
+                                            class="form-control form-control-sm" value="{{ old('last_name') }}"
+                                            placeholder="Enter Last Name">
+                                        @error('last_name')
                                             <p class="text-danger">{{ $message }}</p>
                                         @enderror
                                     </div>
