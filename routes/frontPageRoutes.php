@@ -1,12 +1,10 @@
 <?php
 
-use App\Http\Middleware\SetLocale;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Front\FrontController as NewFrontController;
 use App\Http\Controllers\Website\FrontController;
-
-
+use App\Http\Controllers\Website\HomeController;
+use App\Http\Controllers\Website\StripeController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/mhow-home', [HomeController::class, 'homepage'])->name('website.home');
 
@@ -22,13 +20,6 @@ Route::get('/charity-pages', [NewFrontController::class, 'charityPages'])->name(
 Route::get('/landing-pages', [NewFrontController::class, 'landingPages'])->name('front.landing.pages');
 Route::get('/blogs', [NewFrontController::class, 'blogs'])->name('front.blogs');
 Route::get('/blog/{slug}', [NewFrontController::class, 'blogDetail'])->name('front.blog.detail');
-
-
-
-
-
-
-
 
 // Frontend routes
 // Route::get('/', [HomeController::class, 'index'])->name('front.index');
@@ -48,9 +39,6 @@ Route::get('/event/paypal/status/{event_slug}', [FrontController::class, 'paypal
 Route::get('/event/payment/success', [FrontController::class, 'paypalSuccess'])->name('event.payment.success');
 Route::get('/event/payment/cancel', [FrontController::class, 'paypalCancel'])->name('event.payment.cancel');
 
-
-
-
 // Route::get('/blogs', [FrontController::class, 'blogs'])->name('front.blogs');
 // Route::get('/blogs/{slug}', [FrontController::class, 'blogDetail'])->name('front.blog.detail');
 // Route::get('/gallery', [FrontController::class, 'gallery'])->name('front.gallery');
@@ -63,7 +51,6 @@ Route::post('/contact-us/store', [FrontController::class, 'contactUsStore'])->na
 Route::get('/donate-now', [FrontController::class, 'donateNow'])->name('front.donate.now');
 Route::get('/donate-form', [FrontController::class, 'donateNowFrom'])->name('front.donate.now.form');
 
-
 Route::post('/store-inquiry', [FrontController::class, 'storeInquiry'])->name('front.store.inquiry');
 // Route::post('/contact-us/store', [FrontController::class, 'contactUsStore'])->name('front.contactus.store');
 // Route::get('/contactus', [FrontController::class, 'contactus'])->name('front.contactus');
@@ -73,37 +60,21 @@ Route::get('/payment/return', [FrontController::class, 'handlePaymentReturn'])
 
 Route::post('/donate-store', [FrontController::class, 'donateStore'])->name('front.donate.store');
 
-
 Route::get('/donated', [FrontController::class, 'showOptions'])->name('donation.form');
 
 Route::post('/process-subscription', [FrontController::class, 'processSubscription'])->name('subscription.process');
 // Route::get('/payment/return', [FrontController::class, 'handlePaymentReturn'])->name('payment.return');
 Route::get('/donation/success', [FrontController::class, 'showSuccess'])->name('donation.success');
 
-Route::get('/{slug}', [FrontController::class, 'eventDetail'])->name('front.event.detail');
-
-
 Route::get('/project-detail-test', [FrontController::class, 'projectDetailTest'])->name('front.project.detail.test');
 
+Route::get('/subscribe', fn () => view('website.pricing'));
 
+Route::post('/create-checkout-session', [StripeController::class, 'createCheckout']
+)->name('checkout.session');
 
+Route::get('/success', [StripeController::class,'success'])->name('checkout.success');
 
+Route::get('/cancel',[StripeController::class,'cancel'])->name('checkout.cancel');
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Route::get('/{slug}', [FrontController::class, 'eventDetail'])->name('front.event.detail');

@@ -277,6 +277,9 @@
             </div>
         </div>
     @endif
+     @if (request()->is('telethon'))
+        @include("website.partials.subscriber-plan")
+    @endif
 
     <footer class="bg-black text-white pt-3 pb-5">
         <div class="container text-center">
