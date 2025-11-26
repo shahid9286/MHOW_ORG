@@ -7,6 +7,7 @@ use App\Mail\DonationConfirmation;
 use App\Mail\EventBookingConfirmation;
 use App\Models\Booking;
 use App\Models\BookingFieldValue;
+use App\Models\Campaign;
 use App\Models\Country;
 use App\Models\Donation;
 use App\Models\DonationSource;
@@ -21,7 +22,6 @@ use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Partner;
 use App\Models\PaymentMethod;
-use App\Models\PendingBooking;
 use App\Models\Project;
 use App\Models\Volunteer;  // Add this line
 use App\Models\VolunteerType;
@@ -37,16 +37,24 @@ use Notification;
 use PayPal\Api\Amount;
 use PayPal\Api\Details;
 use PayPal\Api\Payment;
+use PayPal\Api\Transaction;
 /** All Paypal Details class **/
 
+use Redirect;
+use Session;
 use Str;
 use Stripe\Charge;
+use Stripe\Customer;
 use Stripe\Exception\ApiErrorException;
 use Stripe\Exception\CardException;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\Exception\StripeException;
+use Stripe\Invoice;
 use Stripe\PaymentIntent;
+use Stripe\Price;
+use Stripe\Product;
 use Stripe\Stripe;
+use Stripe\Subscription;
 
 class FrontController extends Controller
 {
@@ -111,6 +119,44 @@ class FrontController extends Controller
 
         return view('website.donation_detail');
     }
+    // public function booking(Request $request)
+    // {
+
+    //     // $request->validate([
+    //     //     'name' => 'required',
+    //     //     'email' => 'required',
+    //     //     'phone_no' => 'required',
+    //     //     'gender' => 'required',
+    //     //     'amount' => 'required',
+    //     //     'campaign_id' => 'required'
+    //     // ]);
+
+    //     $booking = new Booking();
+
+    //     if ($request->event_type == 'paid') {
+    //         $ticket = EventTicket::find($request->ticket_id);
+    //         $booking->ticket_title = $ticket->title;
+    //         $booking->ticket_quantity = $ticket->quantity;
+    //         $booking->event_ticket_id = $ticket->id;
+    //         $booking->amount = $ticket->amount;
+    //     } else {
+    //         $booking->amount = 0;
+    //     }
+
+    //     $booking->name = $request->name;
+    //     $booking->email = $request->email;
+    //     $booking->phone_no = $request->phone_no;
+    //     $booking->gender = $request->gender;
+
+    //     $booking->event_id = $request->event_id;
+    //     $booking->event_type = $request->event_type;
+    //     $booking->save();
+
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'message' => 'Event Booked Successfully!',
+    //     ]);
+    // }
 
     public function booking(Request $request)
     {
@@ -506,7 +552,7 @@ class FrontController extends Controller
                 ->back()
                 ->with('success', 'Your booking has been confirmed!');
         } catch (\Exception $e) {
-             $e->getMessage();
+            return $e->getMessage();
             DB::rollBack();
             Log::error('Free booking failed: '.$e->getMessage());
 
@@ -618,341 +664,427 @@ class FrontController extends Controller
         return $content;
     }
 
-    public function projectDetailTest()
-    {
-        return view('front.pages.project-detail', compact('project', 'page'));
-    }
-
     // public function paidBooking(Request $request)
     // {
 
-    //     $request->validate([
+    //     $validated = $request->validate([
     //         'name' => 'required|string|min:2|max:255',
     //         'phone_no' => 'required|string|min:2|max:255',
     //         'email' => 'required|email',
     //         'gender' => 'required|string|in:male,female',
     //         'ticket_id' => 'required|exists:event_tickets,id',
     //         'event_id' => 'required|exists:events,id',
-    //         'payment_gateway' => 'required|in:stripe,paypal',
-    //         'payment_method_id' => 'required_if:payment_gateway,stripe',
+    //         'payment_method_id' => 'required',
     //         'source' => 'required|string|in:facebook,youtube,instagram,tiktok,whatsapp,email',
     //         'event_schedule_id' => $request->has('event_schedule_id') ? 'required|exists:event_schedules,id' : 'nullable',
     //         'country' => $request->has('country') ? 'required|string|max:255' : 'nullable',
     //     ]);
 
-    //     // Extra fields
+    //     // Validate extra fields
     //     $fields = EventExtraField::where('event_id', $request->event_id)->get();
     //     $rules = [];
     //     foreach ($fields as $field) {
     //         $rules['extra.'.$field->field_name] = $field->is_required ? 'required' : 'nullable';
     //     }
-    //     $extraData = $request->validate($rules)['extra'] ?? [];
-    //     if (! is_array($extraData)) {
-    //         $extraData = [];
-    //     }
+    //     $request->validate($rules);
 
+    //     // Get event and ticket
     //     $event = Event::findOrFail($request->event_id);
     //     $ticket = EventTicket::findOrFail($request->ticket_id);
-    //     $eventSchedule = $request->event_schedule_id ? EventSchedule::findOrFail($request->event_schedule_id) : null;
+    //     $eventSchedule = EventSchedule::findOrFail($request->event_schedule_id);
+
     //     $donationAmount = $request->donation_amount ? floatval($request->donation_amount) : 0;
+
     //     $totalAmount = $ticket->amount + $donationAmount;
 
-    //     /* --------------------------------
-    //        STRIPE PAYMENT
-    //     -------------------------------- */
-    //     if ($request->payment_gateway === 'stripe') {
-    //         \Log::info('Processing Stripe payment', ['amount' => $totalAmount]);
+    //     // Process payment with Stripe
+    //     Stripe::setApiKey(config('services.stripe.secret'));
 
-    //         Stripe::setApiKey(config('services.stripe.secret'));
-
-    //         try {
-    //             $paymentIntent = PaymentIntent::create([
-    //                 'amount' => $totalAmount * 100,
-    //                 'currency' => 'gbp',
-    //                 'payment_method' => $request->payment_method_id,
-    //                 'confirm' => true,
-    //                 'description' => 'Booking for '.$event->title,
-    //                 'metadata' => [
-    //                     'event_id' => $event->id,
-    //                     'ticket_id' => $ticket->id,
-    //                     'customer_name' => $request->name,
-    //                     'customer_email' => $request->email,
-    //                     'event_slug' => $event->slug,
-    //                     'extra_fields' => json_encode($extraData),
-    //                 ],
-    //                 'return_url' => route('event.paid.booking.return'),
-    //             ]);
-
-    //             if ($paymentIntent->status === 'requires_action') {
-    //                 return response()->json([
-    //                     'requires_action' => true,
-    //                     'payment_intent_client_secret' => $paymentIntent->client_secret,
-    //                 ]);
-    //             }
-
-    //             $booking = $this->createBookingRecord($request, $event, $ticket, $eventSchedule, $paymentIntent->id, $extraData);
-
-    //             if ($donationAmount > 0) {
-    //                 $this->createDonorRecord($request, $donationAmount, $paymentIntent->id, $event);
-    //             }
-
-    //             $this->sendBookingConfirmation($event, $booking, $eventSchedule);
-
-    //             return response()->json([
-    //                 'success' => true,
-    //                 'redirect_url' => route('front.event.detail', $event->slug).'?payment-success=1',
-    //             ]);
-    //         } catch (CardException $e) {
-    //             return $this->handlePaymentError($e->getError()->message, 400);
-    //         } catch (StripeException $e) {
-    //             return $this->handlePaymentError($e->getMessage(), 400);
-    //         } catch (\Exception $e) {
-    //             return $this->handlePaymentError($e->getMessage(), 500);
-    //         }
-    //     }
-
-    //     /* --------------------------------
-    //        PAYPAL PAYMENT
-    //     -------------------------------- */
-    //     elseif ($request->payment_gateway === 'paypal') {
-    //         \Log::info('Processing PayPal payment', ['amount' => $totalAmount]);
-
-    //         try {
-    //             $order = $this->paypal->createOrder(
-    //                 $totalAmount,
-    //                 'USD',
-    //                 route('paypal.success'),
-    //                 route('paypal.cancel'),
-    //                 'Payment for Service'
-    //             );
-
-    //             // Store order_id temporarily in DB if needed
-    //             // PaymentModel::create([
-    //             //     'order_id' => $order->id,
-    //             //     'amount' => $amount,
-    //             //     'currency' => $currency,
-    //             //     'status' => $order->status
-    //             // ]);
-
-    //             $approvalUrl = $this->paypal->getApprovalUrl($order);
-
-    //             if ($approvalUrl) {
-    //                 return redirect()->away($approvalUrl);
-    //             }
-
-    //             return redirect()->back()->with('error', 'No approval URL found in PayPal response.');
-
-    //         } catch (\Exception $e) {
-    //             Log::error('Payment Creation Error: '.$e->getMessage());
-
-    //             return redirect()->back()->with('error', 'Payment failed: '.$e->getMessage());
-    //         }
-    //     }
-    // }
-
-    // protected function createDonorRecord($request, $donationAmount, $paymentIntentId, $event)
-    // {
     //     try {
-    //         // Generate a unique account name
-    //         $accountName = 'donor_'.time().'_'.substr(md5($request->email.$request->name), 0, 8);
-
-    //         // Get country ID if country name is provided
-    //         $countryId = null;
-    //         if ($request->has('country') && $request->country) {
-    //             $country = Country::where('name', $request->country)->first();
-    //             $countryId = $country ? $country->id : null;
-    //         }
-
-    //         // Get or create donor
-    //         $donor = Donor::firstOrCreate(
-    //             ['email' => $request->email],
-    //             [
-    //                 'name' => $request->name,
-    //                 'account_name' => $accountName,
-    //                 'phone' => $request->phone_no,
-    //                 'country_id' => $countryId,
-    //                 'status' => 'active',
-    //                 'date_of_birth' => $request->date_of_birth,
-    //                 'donor_type' => 'individual',
-    //                 'is_receive_email' => true,
-    //                 'created_by' => auth()->id() ?? null,
-    //             ]
-    //         );
-
-    //         // Generate receipt number
-    //         $receiptNo = 'RCPT-'.date('Ymd').'-'.strtoupper(substr(md5(time().$donor->id), 0, 8));
-
-    //         // Get payment method (assuming you have a default one for online payments)
-    //         $paymentMethod = PaymentMethod::where('name', 'like', '%stripe%')
-    //             ->orWhere('name', 'like', '%online%')
-    //             ->orWhere('name', 'like', '%card%')
-    //             ->first();
-
-    //         if (! $paymentMethod) {
-    //             $paymentMethod = PaymentMethod::first();
-    //         }
-    //         Donation::create([
-    //             'donor_id' => $donor->id,
-    //             'campaign_id' => null,
-    //             'amount' => $donationAmount,
-    //             'transaction_id' => $paymentIntentId,
-    //             'receipt_no' => $receiptNo,
-    //             'donation_date' => now(),
-    //             'message' => 'Donation made during event registration: '.$event->title,
-    //             'payment_method_id' => $paymentMethod->id,
-    //             'donation_source_id' => $this->getDonationSourceId($request->source),
-    //             'created_by' => auth()->id() ?? null,
+    //         $paymentIntent = PaymentIntent::create([
+    //             'amount' => $totalAmount * 100,
+    //             'currency' => 'gbp',
+    //             'payment_method' => $request->payment_method_id,
+    //             'confirm' => true,
+    //             'description' => 'Booking for '.$event->title,
+    //             'metadata' => [
+    //                 'event_id' => $event->id,
+    //                 'ticket_id' => $ticket->id,
+    //                 'customer_name' => $request->name,
+    //                 'customer_email' => $request->email,
+    //                 'event_slug' => $event->slug,
+    //             ],
+    //             'return_url' => route('event.paid.booking.return'),
     //         ]);
 
-    //         return $donor;
+    //         if ($paymentIntent->status === 'requires_action') {
+    //             return response()->json([
+    //                 'requires_action' => true,
+    //                 'payment_intent_client_secret' => $paymentIntent->client_secret,
+    //             ]);
+    //         }
+
+    //         // Create booking record
+    //         $booking = $this->createBookingRecord($request, $event, $ticket, $eventSchedule, $paymentIntent->id);
+
+    //         if ($donationAmount > 0) {
+    //             $this->createDonorRecord($request, $donationAmount, $paymentIntent->id, $event);
+    //         }
+
+    //         // Send confirmation emails
+    //         $this->sendBookingConfirmation($event, $booking, $eventSchedule);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'redirect_url' => route('front.event.detail', $event->slug).'?payment-success=1',
+    //             'paymentData' => [
+    //                 'amount' => $ticket->amount,
+    //                 'firstName' => $request->name,
+    //                 'email' => $request->email,
+    //             ],
+    //         ]);
+    //     } catch (CardException $e) {
+    //         return $this->handlePaymentError($e->getError()->message, 400);
+    //     } catch (StripeException $e) {
+    //         return $this->handlePaymentError($e->getMessage(), 400);
     //     } catch (\Exception $e) {
-
-    //         \Log::error('Failed to create donor record: '.$e->getMessage());
-
-    //         return null;
+    //         return $this->handlePaymentError($e->getMessage(), 500);
     //     }
     // }
+    public function paidBooking(Request $request)
+    {
+        \Log::info('Starting paidBooking process', ['request' => $request->all()]);
 
-    // /**
-    //  * Get donation source ID based on the source string
-    //  */
-    // protected function getDonationSourceId($source)
-    // {
-    //     $sourceMapping = [
-    //         'facebook' => 'Social Media',
-    //         'instagram' => 'Social Media',
-    //         'tiktok' => 'Social Media',
-    //         'youtube' => 'Social Media',
-    //         'whatsapp' => 'Messaging',
-    //         'email' => 'Email Marketing',
-    //     ];
+        $request->validate([
+            'name' => 'required|string|min:2|max:255',
+            'phone_no' => 'required|string|min:2|max:255',
+            'email' => 'required|email',
+            'gender' => 'required|string|in:male,female',
+            'ticket_id' => 'required|exists:event_tickets,id',
+            'event_id' => 'required|exists:events,id',
+            'payment_gateway' => 'required|in:stripe,paypal',
+            'payment_method_id' => 'required_if:payment_gateway,stripe',
+            'source' => 'required|string|in:facebook,youtube,instagram,tiktok,whatsapp,email',
+            'event_schedule_id' => $request->has('event_schedule_id') ? 'required|exists:event_schedules,id' : 'nullable',
+            'country' => $request->has('country') ? 'required|string|max:255' : 'nullable',
+        ]);
 
-    //     $sourceName = $sourceMapping[$source] ?? 'Website';
+        // Extra fields
+        $fields = EventExtraField::where('event_id', $request->event_id)->get();
+        $rules = [];
+        foreach ($fields as $field) {
+            $rules['extra.'.$field->field_name] = $field->is_required ? 'required' : 'nullable';
+        }
+        $extraData = $request->validate($rules)['extra'] ?? [];
+        if (! is_array($extraData)) {
+            $extraData = [];
+        }
 
-    //     $donationSource = DonationSource::where('name', $sourceName)->first();
+        $event = Event::findOrFail($request->event_id);
+        $ticket = EventTicket::findOrFail($request->ticket_id);
+        $eventSchedule = $request->event_schedule_id ? EventSchedule::findOrFail($request->event_schedule_id) : null;
+        $donationAmount = $request->donation_amount ? floatval($request->donation_amount) : 0;
+        $totalAmount = $ticket->amount + $donationAmount;
 
-    //     if (! $donationSource) {
-    //         $donationSource = DonationSource::where('name', 'Website')->first();
-    //     }
+        /* --------------------------------
+           STRIPE PAYMENT
+        -------------------------------- */
+        if ($request->payment_gateway === 'stripe') {
+            \Log::info('Processing Stripe payment', ['amount' => $totalAmount]);
 
-    //     return $donationSource ? $donationSource->id : null;
-    // }
+            Stripe::setApiKey(config('services.stripe.secret'));
 
-    // protected function createBookingRecord($request, $event, $ticket, $eventSchedule, $transactionId)
-    // {
-    //     $booking = new Booking([
-    //         'event_id' => $event->id,
-    //         'name' => $request->name,
-    //         'email' => $this->cleanEmail($request->email),
-    //         'phone_no' => $request->phone_no,
-    //         'gender' => $request->gender,
-    //         'source' => $request->source,
-    //         'event_type' => 'paid',
-    //         'amount' => $ticket->amount,
-    //         'ticket_title' => $ticket->title,
-    //         'ticket_quantity' => $ticket->quantity,
-    //         'event_ticket_id' => $ticket->id,
-    //         'payment_method' => 'stripe',
-    //         'payment_status' => 'paid',
-    //         'transaction_id' => $transactionId,
-    //     ]);
+            try {
+                $paymentIntent = PaymentIntent::create([
+                    'amount' => $totalAmount * 100,
+                    'currency' => 'gbp',
+                    'payment_method' => $request->payment_method_id,
+                    'confirm' => true,
+                    'description' => 'Booking for '.$event->title,
+                    'metadata' => [
+                        'event_id' => $event->id,
+                        'ticket_id' => $ticket->id,
+                        'customer_name' => $request->name,
+                        'customer_email' => $request->email,
+                        'event_slug' => $event->slug,
+                        'extra_fields' => json_encode($extraData),
+                    ],
+                    'return_url' => route('event.paid.booking.return'),
+                ]);
 
-    //     if ($request->has('event_schedule_id')) {
-    //         $booking->schedule_title = $eventSchedule->title;
-    //         $booking->event_schedule_id = $request->event_schedule_id;
-    //     }
-    //     if ($request->has('country')) {
-    //         $booking->country = $request->country;
-    //     }
-    //     $booking->save();
+                if ($paymentIntent->status === 'requires_action') {
+                    return response()->json([
+                        'requires_action' => true,
+                        'payment_intent_client_secret' => $paymentIntent->client_secret,
+                    ]);
+                }
 
-    //     return $booking;
-    // }
+                $booking = $this->createBookingRecord($request, $event, $ticket, $eventSchedule, $paymentIntent->id, $extraData);
 
-    // protected function sendBookingConfirmation($event, $booking, $eventSchedule)
-    // {
-    //     $emailTemplate = EventEmailTemplate::where(['event_id' => $event->id, 'send_timing' => 'after-registration'])->first();
+                if ($donationAmount > 0) {
+                    $this->createDonorRecord($request, $donationAmount, $paymentIntent->id, $event);
+                }
 
-    //     if ($emailTemplate) {
-    //         $replacements = [
-    //             '{{ name }}' => $booking->name,
-    //             '{{ schedule }}' => $eventSchedule->title,
-    //             '{{ start_time }}' => $eventSchedule->start_time,
-    //             '{{ title }}' => $event->title,
-    //             '{{ start_date }}' => Carbon::parse($event->start_date)->format('F j, Y'),
-    //             '{{ end_date }}' => Carbon::parse($event->end_date)->format('F j, Y'),
-    //             '{{ venue }}' => $event->venue,
-    //             '{{ location }}' => $event->location,
-    //         ];
+                $this->sendBookingConfirmation($event, $booking, $eventSchedule);
 
-    //         $body = str_replace(
-    //             array_keys($replacements),
-    //             array_values($replacements),
-    //             $emailTemplate->body
-    //         );
-    //         $this->sendEmail(
-    //             $booking->email,
-    //             $emailTemplate->subject,
-    //             view('admin.mail.event_mail', ['content' => $body])->render()
-    //         );
-    //     }
+                return response()->json([
+                    'success' => true,
+                    'redirect_url' => route('front.event.detail', $event->slug).'?payment-success=1',
+                ]);
+            } catch (CardException $e) {
+                return $this->handlePaymentError($e->getError()->message, 400);
+            } catch (StripeException $e) {
+                return $this->handlePaymentError($e->getMessage(), 400);
+            } catch (\Exception $e) {
+                return $this->handlePaymentError($e->getMessage(), 500);
+            }
+        }
 
-    //     if ($event->admin_emails) {
-    //         $adminEmails = explode(',', $event->admin_emails);
+        /* --------------------------------
+           PAYPAL PAYMENT
+        -------------------------------- */
+        elseif ($request->payment_gateway === 'paypal') {
+            \Log::info('Processing PayPal payment', ['amount' => $totalAmount]);
 
-    //         $adminContent = view('admin.mail.admin_event_mail', [
-    //             'event' => $event,
-    //             'eventSchedule' => $eventSchedule,
-    //             'booking' => $booking,
-    //         ])->render();
+            try {
+                $order = $this->paypal->createOrder(
+                    $totalAmount,
+                    $currency = 'USD',
+                    route('paypal.success'),
+                    route('paypal.cancel'),
+                    'Payment for Service'
+                );
 
-    //         foreach ($adminEmails as $adminEmail) {
+                // Store order_id temporarily in DB if needed
+                // PaymentModel::create([
+                //     'order_id' => $order->id,
+                //     'amount' => $amount,
+                //     'currency' => $currency,
+                //     'status' => $order->status
+                // ]);
 
-    //             $this->sendEmail(
-    //                 $adminEmail,
-    //                 "New Booking: {$event->title}",
-    //                 html: $adminContent
-    //             );
-    //         }
-    //     }
+                $approvalUrl = $this->paypal->getApprovalUrl($order);
 
-    //     if ($event->marketing_emails) {
-    //         $marketingEmails = explode(',', $event->marketing_emails);
+                if ($approvalUrl) {
+                    return redirect()->away($approvalUrl);
+                }
 
-    //         $marketingContent = view('admin.mail.admin_event_mail', [
-    //             'event' => $event,
-    //             'eventSchedule' => $eventSchedule,
-    //             'booking' => $booking,
-    //         ])->render();
+                return redirect()->back()->with('error', 'No approval URL found in PayPal response.');
 
-    //         foreach ($marketingEmails as $marketingEmail) {
+            } catch (\Exception $e) {
+                Log::error('Payment Creation Error: '.$e->getMessage());
 
-    //             $this->sendEmail(
-    //                 $marketingEmail,
-    //                 "New Booking: {$event->title}",
-    //                 html: $marketingContent
-    //             );
-    //         }
-    //     }
-    // }
+                return redirect()->back()->with('error', 'Payment failed: '.$e->getMessage());
+            }
+        }
+    }
 
-    // protected function sendEmail($to, $subject, $html)
-    // {
-    //     $to = $this->cleanEmail($to);
-    //     if (! $this->isValidEmail($to)) {
-    //         Log::error('Invalid email format', ['email' => $to]);
+   
 
-    //         return $this->sendFallbackEmail($to, $subject, $html);
-    //     }
-    //     if ($this->sendViaBrevo($to, $subject, $html)) {
-    //         return true;
-    //     }
+    protected function createDonorRecord($request, $donationAmount, $paymentIntentId, $event)
+    {
+        try {
+            // Generate a unique account name
+            $accountName = 'donor_'.time().'_'.substr(md5($request->email.$request->name), 0, 8);
 
-    //     return $this->sendFallbackEmail($to, $subject, $html);
-    // }
+            // Get country ID if country name is provided
+            $countryId = null;
+            if ($request->has('country') && $request->country) {
+                $country = Country::where('name', $request->country)->first();
+                $countryId = $country ? $country->id : null;
+            }
+
+            // Get or create donor
+            $donor = Donor::firstOrCreate(
+                ['email' => $request->email],
+                [
+                    'name' => $request->name,
+                    'account_name' => $accountName,
+                    'phone' => $request->phone_no,
+                    'country_id' => $countryId,
+                    'status' => 'active',
+                    'date_of_birth' => $request->date_of_birth,
+                    'donor_type' => 'individual',
+                    'is_receive_email' => true,
+                    'created_by' => auth()->id() ?? null,
+                ]
+            );
+
+            // Generate receipt number
+            $receiptNo = 'RCPT-'.date('Ymd').'-'.strtoupper(substr(md5(time().$donor->id), 0, 8));
+
+            // Get payment method (assuming you have a default one for online payments)
+            $paymentMethod = PaymentMethod::where('name', 'like', '%stripe%')
+                ->orWhere('name', 'like', '%online%')
+                ->orWhere('name', 'like', '%card%')
+                ->first();
+
+            if (! $paymentMethod) {
+                $paymentMethod = PaymentMethod::first();
+            }
+            Donation::create([
+                'donor_id' => $donor->id,
+                'campaign_id' => null,
+                'amount' => $donationAmount,
+                'transaction_id' => $paymentIntentId,
+                'receipt_no' => $receiptNo,
+                'donation_date' => now(),
+                'message' => 'Donation made during event registration: '.$event->title,
+                'payment_method_id' => $paymentMethod->id,
+                'donation_source_id' => $this->getDonationSourceId($request->source),
+                'created_by' => auth()->id() ?? null,
+            ]);
+
+            return $donor;
+        } catch (\Exception $e) {
+           
+            \Log::error('Failed to create donor record: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * Get donation source ID based on the source string
+     */
+    protected function getDonationSourceId($source)
+    {
+        $sourceMapping = [
+            'facebook' => 'Social Media',
+            'instagram' => 'Social Media',
+            'tiktok' => 'Social Media',
+            'youtube' => 'Social Media',
+            'whatsapp' => 'Messaging',
+            'email' => 'Email Marketing',
+        ];
+
+        $sourceName = $sourceMapping[$source] ?? 'Website';
+
+        $donationSource = DonationSource::where('name', $sourceName)->first();
+
+        if (! $donationSource) {
+            $donationSource = DonationSource::where('name', 'Website')->first();
+        }
+
+        return $donationSource ? $donationSource->id : null;
+    }
+
+    protected function createBookingRecord($request, $event, $ticket, $eventSchedule, $transactionId)
+    {
+        $booking = new Booking([
+            'event_id' => $event->id,
+            'name' => $request->name,
+            'email' => $this->cleanEmail($request->email),
+            'phone_no' => $request->phone_no,
+            'gender' => $request->gender,
+            'source' => $request->source,
+            'event_type' => 'paid',
+            'amount' => $ticket->amount,
+            'ticket_title' => $ticket->title,
+            'ticket_quantity' => $ticket->quantity,
+            'event_ticket_id' => $ticket->id,
+            'payment_method' => 'stripe',
+            'payment_status' => 'paid',
+            'transaction_id' => $transactionId,
+        ]);
+
+        if ($request->has('event_schedule_id')) {
+            $booking->schedule_title = $eventSchedule->title;
+            $booking->event_schedule_id = $request->event_schedule_id;
+        }
+        if ($request->has('country')) {
+            $booking->country = $request->country;
+        }
+        $booking->save();
+
+        return $booking;
+    }
+
+    protected function sendBookingConfirmation($event, $booking, $eventSchedule)
+    {
+        $emailTemplate = EventEmailTemplate::where(['event_id' => $event->id, 'send_timing' => 'after-registration'])->first();
+
+        if ($emailTemplate) {
+            $replacements = [
+                '{{ name }}' => $booking->name,
+                '{{ schedule }}' => $eventSchedule->title,
+                '{{ start_time }}' => $eventSchedule->start_time,
+                '{{ title }}' => $event->title,
+                '{{ start_date }}' => Carbon::parse($event->start_date)->format('F j, Y'),
+                '{{ end_date }}' => Carbon::parse($event->end_date)->format('F j, Y'),
+                '{{ venue }}' => $event->venue,
+                '{{ location }}' => $event->location,
+            ];
+
+            $body = str_replace(
+                array_keys($replacements),
+                array_values($replacements),
+                $emailTemplate->body
+            );
+            $this->sendEmail(
+                $booking->email,
+                $emailTemplate->subject,
+                view('admin.mail.event_mail', ['content' => $body])->render()
+            );
+        }
+
+        if ($event->admin_emails) {
+            $adminEmails = explode(',', $event->admin_emails);
+
+            $adminContent = view('admin.mail.admin_event_mail', [
+                'event' => $event,
+                'eventSchedule' => $eventSchedule,
+                'booking' => $booking,
+            ])->render();
+
+            foreach ($adminEmails as $adminEmail) {
+
+                $this->sendEmail(
+                    $adminEmail,
+                    "New Booking: {$event->title}",
+                    html: $adminContent
+                );
+            }
+        }
+
+        if ($event->marketing_emails) {
+            $marketingEmails = explode(',', $event->marketing_emails);
+
+            $marketingContent = view('admin.mail.admin_event_mail', [
+                'event' => $event,
+                'eventSchedule' => $eventSchedule,
+                'booking' => $booking,
+            ])->render();
+
+            foreach ($marketingEmails as $marketingEmail) {
+
+                $this->sendEmail(
+                    $marketingEmail,
+                    "New Booking: {$event->title}",
+                    html: $marketingContent
+                );
+            }
+        }
+    }
+
+    protected function sendEmail($to, $subject, $html)
+    {
+        $to = $this->cleanEmail($to);
+        if (! $this->isValidEmail($to)) {
+            Log::error('Invalid email format', ['email' => $to]);
+
+            return $this->sendFallbackEmail($to, $subject, $html);
+        }
+        if ($this->sendViaBrevo($to, $subject, $html)) {
+            return true;
+        }
+
+        return $this->sendFallbackEmail($to, $subject, $html);
+    }
 
     protected function sendViaBrevo($to, $subject, $html)
     {
+      
 
         try {
             $response = Http::withHeaders([
@@ -1029,440 +1161,214 @@ class FrontController extends Controller
         return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    // protected function handlePaymentError($message, $statusCode)
-    // {
-    //     Log::error('Payment Processing Error', ['error' => $message]);
-
-    //     return response()->json([
-    //         'error' => true,
-    //         'message' => $statusCode === 400 ? $message : 'An unexpected error occurred',
-    //     ], $statusCode);
-    // }
-
-    // public function handlePaymentReturn(Request $request)
-    // {
-    //     try {
-    //         if (! $request->has('payment_intent')) {
-    //             throw new \Exception('Payment intent missing');
-    //         }
-
-    //         $paymentIntent = PaymentIntent::retrieve($request->payment_intent);
-
-    //         if ($paymentIntent->status !== 'succeeded') {
-    //             throw new \Exception('Payment not completed');
-    //         }
-
-    //         $event = Event::findOrFail($paymentIntent->metadata->event_id);
-    //         $ticket = EventTicket::findOrFail($paymentIntent->metadata->ticket_id);
-
-    //         $booking = new Booking;
-    //         $booking->event_id = $paymentIntent->metadata->event_id;
-    //         $booking->name = $paymentIntent->metadata->customer_name;
-    //         $booking->email = $paymentIntent->metadata->customer_email;
-    //         $booking->phone_no = ''; // Not available in metadata
-    //         $booking->gender = ''; // Not available in metadata
-    //         $booking->event_type = 'paid';
-    //         $booking->amount = $paymentIntent->amount / 100;
-    //         $booking->ticket_title = $ticket->title;
-    //         $booking->ticket_quantity = $ticket->quantity;
-    //         $booking->event_ticket_id = $ticket->id;
-    //         $booking->payment_method = 'stripe';
-    //         $booking->payment_status = 'paid';
-    //         $booking->transaction_id = $paymentIntent->id;
-    //         $booking->save();
-
-    //         return redirect()->route('front.event.detail', $paymentIntent->metadata->event_slug)
-    //             ->with([
-    //                 'payment-success' => true,
-    //                 'paymentData' => [
-    //                     'amount' => $paymentIntent->amount / 100,
-    //                     'firstName' => $paymentIntent->metadata->customer_name,
-    //                     'email' => $paymentIntent->metadata->customer_email,
-    //                 ],
-    //             ]);
-    //     } catch (\Exception $e) {
-    //         return redirect()->route('front.event.detail', $event->slug ?? 'home')
-    //             ->with(['error' => 'Failed to complete booking: '.$e->getMessage()]);
-    //     }
-    // }
-
-    // public function showOptions()
-    // {
-    //     return view('website.page.donation');
-    // }
-
-    // public function showSuccess()
-    // {
-    //     return view('website.page.donation-success');
-    // }
-
-    // public function paypalSuccess(Request $request)
-    // {
-    //     try {
-    //         $token = $request->get('token');
-    //         $orderId = $request->get('token') ?: $request->get('orderId');
-
-    //         if (! $orderId) {
-    //             return redirect()->route('paypal.cancel')->with('error', 'No order ID provided.');
-    //         }
-
-    //         // Capture the order
-    //         $capturedOrder = $this->paypal->captureOrder($orderId);
-
-    //         if ($this->paypal->isPaymentCompleted($capturedOrder)) {
-    //             // Update your payment record in database
-    //             // PaymentModel::where('order_id', $orderId)->update(['status' => 'completed']);
-
-    //             return redirect()->route('home')->with('success', 'Payment completed successfully!');
-    //         }
-
-    //         return redirect()->route('paypal.cancel')->with('error', 'Payment not completed!');
-
-    //     } catch (\Exception $e) {
-    //         Log::error('Payment Capture Error: '.$e->getMessage());
-
-    //         return redirect()->route('paypal.cancel')->with('error', 'Payment execution failed: '.$e->getMessage());
-    //     }
-    // }
-
-    public function paypalCancel()
+    protected function handlePaymentError($message, $statusCode)
     {
-        return redirect()->route('front.index')->with('error', 'Payment was cancelled!');
+        Log::error('Payment Processing Error', ['error' => $message]);
+
+        return response()->json([
+            'error' => true,
+            'message' => $statusCode === 400 ? $message : 'An unexpected error occurred',
+        ], $statusCode);
     }
 
-    public function paidBooking(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|min:2|max:255',
-            'phone_no' => 'required|string|min:2|max:255',
-            'email' => 'required|email',
-            'gender' => 'required|string|in:male,female,other',
-            'ticket_id' => 'required|exists:event_tickets,id',
-            'event_id' => 'required|exists:events,id',
-            'payment_gateway' => 'required|in:stripe,paypal',
-            'payment_method_id' => 'required_if:payment_gateway,stripe',
-            'donation_amount' => 'nullable|numeric|min:0',
-        ]);
-
-        // Extra fields
-        $fields = EventExtraField::where('event_id', $request->event_id)->get();
-        $rules = [];
-        foreach ($fields as $field) {
-            $rules['extra.'.$field->field_name] = $field->is_required ? 'required' : 'nullable';
-        }
-        $extraData = $request->validate($rules)['extra'] ?? [];
-
-        // Save pending booking BEFORE payment
-        $pending = PendingBooking::create([
-            'event_id' => $request->event_id,
-            'ticket_id' => $request->ticket_id,
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone_no' => $request->phone_no,
-            'date_of_birth' => $request->date_of_birth ?? null,
-            'gender' => $request->gender,
-            'extra_data' => $extraData,
-            'donation_amount' => $request->donation_amount ?? 0,
-            'payment_gateway' => $request->payment_gateway,
-            'payment_method_id' => $request->payment_method_id,
-        ]);
-
-        $event = Event::find($request->event_id);
-        $ticket = EventTicket::find($request->ticket_id);
-        $totalAmount = $ticket->amount + ($pending->donation_amount ?? 0);
-
-        // ----------------------------
-        // STRIPE PAYMENT
-        // ----------------------------
-        if ($request->payment_gateway === 'stripe') {
-            Stripe::setApiKey(config('services.stripe.secret'));
-            try {
-                $paymentIntent = PaymentIntent::create([
-                    'amount' => $totalAmount * 100,
-                    'currency' => 'gbp',
-                    'payment_method' => $request->payment_method_id,
-                    'confirm' => true,
-                    'metadata' => [
-                        'pending_id' => $pending->id,
-                    ],
-                    'return_url' => route('event.paid.booking.return'),
-                ]);
-
-                if ($paymentIntent->status === 'requires_action') {
-                    return response()->json([
-                        'requires_action' => true,
-                        'payment_intent_client_secret' => $paymentIntent->client_secret,
-                    ]);
-                }
-                $this->convertPendingToBooking($pending, $paymentIntent->id);
-
-                return response()->json([
-                    'success' => true,
-                    'payment_intent_id' => $paymentIntent->id,
-                ]);
-            } catch (\Exception $e) {
-                // Return JSON instead of HTML
-                return response()->json([
-                    'error' => true,
-                    'message' => $e->getMessage(),
-                ], 400);
-
-            } catch (CardException $e) {
-                return $this->handlePaymentError($e->getError()->message, 400);
-            } catch (StripeException $e) {
-                return $this->handlePaymentError($e->getMessage(), 400);
-            } catch (\Exception $e) {
-                return $this->handlePaymentError($e->getMessage(), 500);
-            }
-        }
-
-        // ----------------------------
-        // PAYPAL PAYMENT
-        // ----------------------------
-        elseif ($request->payment_gateway === 'paypal') {
-            try {
-                $order = $this->paypal->createOrder(
-                    $totalAmount,
-                    'USD',
-                    route('paypal.success'),
-                    route('paypal.cancel'),
-                    'Event Booking'
-                );
-
-                $pending->update(['paypal_order_id' => $order->id]);
-
-                $approvalUrl = $this->paypal->getApprovalUrl($order);
-                if ($approvalUrl) {
-                    return redirect()->away($approvalUrl);
-                }
-
-                return redirect()->back()->with('error', 'No approval URL found in PayPal response.');
-            } catch (\Exception $e) {
-                Log::error('PayPal Error: '.$e->getMessage());
-
-                return redirect()->back()->with('error', $e->getMessage());
-            }
-        }
-    }
-
-    // --------------------------------
-    // STEP 2: Stripe Return
-    // --------------------------------
     public function handlePaymentReturn(Request $request)
     {
         try {
+            if (! $request->has('payment_intent')) {
+                throw new \Exception('Payment intent missing');
+            }
+
             $paymentIntent = PaymentIntent::retrieve($request->payment_intent);
 
             if ($paymentIntent->status !== 'succeeded') {
                 throw new \Exception('Payment not completed');
             }
 
-            $pending = PendingBooking::findOrFail($paymentIntent->metadata->pending_id);
+            $event = Event::findOrFail($paymentIntent->metadata->event_id);
+            $ticket = EventTicket::findOrFail($paymentIntent->metadata->ticket_id);
 
-            return $this->convertPendingToBooking($pending, $paymentIntent->id);
+            $booking = new Booking;
+            $booking->event_id = $paymentIntent->metadata->event_id;
+            $booking->name = $paymentIntent->metadata->customer_name;
+            $booking->email = $paymentIntent->metadata->customer_email;
+            $booking->phone_no = ''; // Not available in metadata
+            $booking->gender = ''; // Not available in metadata
+            $booking->event_type = 'paid';
+            $booking->amount = $paymentIntent->amount / 100;
+            $booking->ticket_title = $ticket->title;
+            $booking->ticket_quantity = $ticket->quantity;
+            $booking->event_ticket_id = $ticket->id;
+            $booking->payment_method = 'stripe';
+            $booking->payment_status = 'paid';
+            $booking->transaction_id = $paymentIntent->id;
+            $booking->save();
+
+            return redirect()->route('front.event.detail', $paymentIntent->metadata->event_slug)
+                ->with([
+                    'payment-success' => true,
+                    'paymentData' => [
+                        'amount' => $paymentIntent->amount / 100,
+                        'firstName' => $paymentIntent->metadata->customer_name,
+                        'email' => $paymentIntent->metadata->customer_email,
+                    ],
+                ]);
         } catch (\Exception $e) {
-            return redirect()->route('front.index')->with('error', $e->getMessage());
+            return redirect()->route('front.event.detail', $event->slug ?? 'home')
+                ->with(['error' => 'Failed to complete booking: '.$e->getMessage()]);
         }
     }
 
-    // --------------------------------
-    // STEP 3: PayPal Success
-    // --------------------------------
+    public function showOptions()
+    {
+        return view('website.page.donation');
+    }
+
+    public function processSubscription(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'amount' => 'required|integer|in:20,50,100',
+            'payment_method_id' => 'required|string',
+        ]);
+
+        dd($request->all());
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            $customer = Customer::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'payment_method' => $validated['payment_method_id'],
+                'invoice_settings' => [
+                    'default_payment_method' => $validated['payment_method_id'],
+                ],
+            ]);
+
+            $product = Product::create(['name' => 'Monthly Donation', 'type' => 'service']);
+            $price = Price::create([
+                'unit_amount' => $validated['amount'] * 100,
+                'currency' => 'gbp',
+                'recurring' => ['interval' => 'month'],
+                'product' => $product->id,
+            ]);
+
+            $subscription = Subscription::create([
+                'customer' => $customer->id,
+                'items' => [['price' => $price->id]],
+                'payment_behavior' => 'default_incomplete',
+                'expand' => ['latest_invoice.payment_intent'],
+                'payment_settings' => [
+                    'save_default_payment_method' => 'on_subscription',
+                    'payment_method_options' => ['card' => ['request_three_d_secure' => 'automatic']],
+                ],
+            ]);
+
+            $paymentIntent = $subscription->latest_invoice->payment_intent
+                ?? Invoice::retrieve([
+                    'id' => $subscription->latest_invoice,
+                    'expand' => ['payment_intent'],
+                ])->payment_intent;
+
+            $returnUrl = filter_var(
+                rtrim('http://127.0.0.1:8000', '/').'/payment/return',
+                FILTER_SANITIZE_URL
+            );
+
+            Log::info("return_url: {$returnUrl}");
+
+            $paymentIntent = PaymentIntent::update($paymentIntent->id, [
+                'return_url' => 'http://127.0.0.1:8000/payment/return',
+                'receipt_email' => $validated['email'],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'requires_action' => $paymentIntent->status === 'requires_action',
+                'client_secret' => $paymentIntent->client_secret,
+                'subscription_id' => $subscription->id,
+                'return_url' => $returnUrl,
+            ]);
+        } catch (ApiErrorException $e) {
+            Log::error("Stripe API: {$e->getMessage()}");
+
+            return response()->json(['error' => $e->getMessage()], 400);
+        } catch (\Exception $e) {
+            Log::error("Donation error: {$e->getMessage()}");
+
+            return response()->json(['error' => 'An error occurred.'], 500);
+        }
+    }
+
+    // public function handlePaymentReturn(Request $request)
+    // {
+    //     Stripe::setApiKey(config('services.stripe.secret'));
+    //     $paymentIntentId = $request->input('payment_intent');
+
+    //     if (!$paymentIntentId) {
+    //         return redirect()->route('donation.form')->with('error', 'Missing payment intent.');
+    //     }
+
+    //     try {
+    //         $pi = PaymentIntent::retrieve($paymentIntentId);
+    //         Log::info("PI status: {$pi->status}");
+
+    //         if ($pi->status === 'succeeded') {
+    //             return redirect()->route('donation.success');
+    //         } elseif (in_array($pi->status, ['requires_action', 'requires_payment_method'])) {
+    //             return redirect()->route('donation.form')
+    //                 ->with('error', "Payment requires action: {$pi->status}");
+    //         }
+
+    //         return redirect()->route('donation.form')->with('error', "Payment not completed: {$pi->status}");
+    //     } catch (\Exception $e) {
+    //         Log::error("Return handling error: {$e->getMessage()}");
+    //         return redirect()->route('donation.form')->with('error', 'Payment verification failed.');
+    //     }
+    // }
+
+    public function showSuccess()
+    {
+        return view('website.page.donation-success');
+    }
+
+    public function projectDetailTest()
+    {
+        return view('front.pages.project-detail', compact('project', 'page'));
+    }
+
     public function paypalSuccess(Request $request)
     {
         try {
-            $orderId = $request->token;
-            $captured = $this->paypal->captureOrder($orderId);
+            $token = $request->get('token');
+            $orderId = $request->get('token') ?: $request->get('orderId');
 
-            if (! $this->paypal->isPaymentCompleted($captured)) {
-                throw new \Exception('Payment not completed.');
+            if (! $orderId) {
+                return redirect()->route('paypal.cancel')->with('error', 'No order ID provided.');
             }
 
-            $pending = PendingBooking::where('paypal_order_id', $orderId)->firstOrFail();
+            // Capture the order
+            $capturedOrder = $this->paypal->captureOrder($orderId);
 
-            return $this->convertPendingToBooking($pending, $orderId);
+            if ($this->paypal->isPaymentCompleted($capturedOrder)) {
+                // Update your payment record in database
+                // PaymentModel::where('order_id', $orderId)->update(['status' => 'completed']);
 
-        } catch (\Exception $e) {
-            return redirect()->route('front.index')->with('error', $e->getMessage());
-        }
-    }
-
-    // --------------------------------
-    // STEP 4: Convert Pending to Booking
-    // --------------------------------
-    protected function convertPendingToBooking(PendingBooking $pending, $transactionId)
-    {
-        $event = Event::find($pending->event_id);
-        $ticket = EventTicket::find($pending->ticket_id);
-
-        $booking = Booking::create([
-            'event_id' => $event->id,
-            'name' => $pending->name,
-            'email' => strtolower($pending->email),
-            'phone_no' => $pending->phone_no,
-            'gender' => $pending->gender,
-            'event_type' => 'paid',
-            'amount' => $ticket->amount,
-            'ticket_title' => $ticket->title,
-            'ticket_quantity' => $ticket->quantity,
-            'event_ticket_id' => $ticket->id,
-            'transaction_id' => $transactionId,
-            'transaction_date' => now()->toDateString(),
-            'payment_method' => $pending->payment_gateway,
-            'campaign_id' => null,
-            'donation_form_id' => null,
-        ]);
-
-        if ($pending->donation_amount > 0) {
-            $this->createDonorRecord(
-                new Request($pending->toArray()),
-                $pending->donation_amount,
-                $transactionId,
-                $event
-            );
-        }
-
-        $this->sendBookingConfirmation($event, $booking, null);
-
-        $pending->delete();
-
-        // return redirect()->route('front.event.detail', $event->slug)
-        //     ->with('payment-success', true);
-    }
-
-    // --------------------------------
-    // STEP 5: Donor Record
-    // --------------------------------
-    protected function createDonorRecord($request, $donationAmount, $transactionId, $event)
-    {
-        try {
-            $accountName = 'donor_'.time().'_'.substr(md5($request->email.$request->name), 0, 8);
-
-            $donor = Donor::firstOrCreate(
-                ['email' => $request->email],
-                [
-                    'name' => $request->name,
-                    'account_name' => $accountName,
-                    'phone' => $request->phone_no,
-                    'status' => 'active',
-                    'date_of_birth' => $request->date_of_birth ?? null,
-                    'donor_type' => 'individual',
-                    'is_receive_email' => true,
-                    'created_by' => auth()->id() ?? null,
-                ]
-            );
-
-            $receiptNo = 'RCPT-'.date('Ymd').'-'.strtoupper(substr(md5(time().$donor->id), 0, 8));
-
-            $paymentMethod = PaymentMethod::where('name', 'like', '%stripe%')
-                ->orWhere('name', 'like', '%online%')
-                ->orWhere('name', 'like', '%card%')
-                ->first();
-
-            if (! $paymentMethod) {
-                $paymentMethod = PaymentMethod::first();
+                return redirect()->route('home')->with('success', 'Payment completed successfully!');
             }
 
-            Donation::create([
-                'donor_id' => $donor->id,
-                'campaign_id' => null,
-                'amount' => $donationAmount,
-                'transaction_id' => $transactionId,
-                'receipt_no' => $receiptNo,
-                'donation_date' => now(),
-                'message' => 'Donation made during event registration: '.$event->title,
-                'payment_method_id' => $paymentMethod->id,
-                'donation_source_id' => $this->getDonationSourceId($request->source ?? 'website'),
-                'created_by' => auth()->id() ?? null,
-            ]);
-
-            return $donor;
-        } catch (\Exception $e) {
-            Log::error('Failed to create donor record: '.$e->getMessage());
-
-            return null;
-        }
-    }
-
-    protected function getDonationSourceId($source)
-    {
-        $sourceMapping = [
-            'facebook' => 'Social Media',
-            'instagram' => 'Social Media',
-            'tiktok' => 'Social Media',
-            'youtube' => 'Social Media',
-            'whatsapp' => 'Messaging',
-            'email' => 'Email Marketing',
-        ];
-
-        $sourceName = $sourceMapping[$source] ?? 'Website';
-        $donationSource = DonationSource::where('name', $sourceName)->first();
-        if (! $donationSource) {
-            $donationSource = DonationSource::where('name', 'Website')->first();
-        }
-
-        return $donationSource ? $donationSource->id : null;
-    }
-
-    // --------------------------------
-    // STEP 6: Send Email
-    // --------------------------------
-    protected function sendBookingConfirmation($event, $booking, $eventSchedule)
-    {
-        $emailTemplate = EventEmailTemplate::where(['event_id' => $event->id, 'send_timing' => 'after-registration'])->first();
-
-        if ($emailTemplate) {
-            $replacements = [
-                '{{ name }}' => $booking->name,
-                '{{ title }}' => $event->title,
-                '{{ start_date }}' => Carbon::parse($event->start_date)->format('F j, Y'),
-                '{{ end_date }}' => Carbon::parse($event->end_date)->format('F j, Y'),
-                '{{ venue }}' => $event->venue,
-                '{{ location }}' => $event->location,
-            ];
-
-            $body = str_replace(array_keys($replacements), array_values($replacements), $emailTemplate->body);
-
-            $this->sendEmail($booking->email, $emailTemplate->subject, view('admin.mail.event_mail', ['content' => $body])->render());
-        }
-    }
-
-    protected function sendEmail($to, $subject, $html)
-    {
-        $to = strtolower(trim($to));
-
-        if (! filter_var($to, FILTER_VALIDATE_EMAIL)) {
-            Log::error('Invalid email: '.$to);
-
-            return false;
-        }
-
-        try {
-
-            if ($this->sendViaBrevo($to, $subject, $html)) {
-                return true;
-            }
-
-            // Optional fallback if Brevo fails
-            return $this->sendFallbackEmail($to, $subject, $html);
+            return redirect()->route('paypal.cancel')->with('error', 'Payment not completed!');
 
         } catch (\Exception $e) {
-            Log::error('Email send failed: '.$e->getMessage(), [
-                'email' => $to,
-                'subject' => $subject,
-            ]);
+            Log::error('Payment Capture Error: '.$e->getMessage());
 
-            return false;
+            return redirect()->route('paypal.cancel')->with('error', 'Payment execution failed: '.$e->getMessage());
         }
     }
 
-    protected function handlePaymentError($message, $statusCode)
+    public function paypalCancel()
     {
-        Log::error('Payment error: '.$message);
-
-        return response()->json([
-            'error' => true,
-            'message' => $statusCode === 400 ? $message : 'An unexpected error occurred',
-        ], $statusCode);
+        return redirect()->route('/')->with('error', 'Payment was cancelled!');
     }
 }

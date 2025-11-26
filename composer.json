@@ -14,10 +14,13 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "*",
         "maatwebsite/excel": "^3.1",
+        "paypal/paypal-checkout-sdk": "^1.0",
+        "paypal/rest-api-sdk-php": "^1.6",
         "spatie/laravel-responsecache": "^7.6",
         "spatie/laravel-sitemap": "^7.3",
         "spatie/laravel-translatable": "^6.8",
         "spatie/laravel-translation-loader": "^2.8",
+        "srmklive/paypal": "^3.0",
         "stripe/stripe-php": "^17.3"
     },
     "require-dev": {

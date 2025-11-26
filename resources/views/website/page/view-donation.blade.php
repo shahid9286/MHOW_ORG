@@ -235,11 +235,11 @@
                                             </div>
                                         </div>
 
-                                        <div class="text-right {{ session()->has('payment-success') ? 'd-none' : '' }}">
-                                            <button class="btn btn-success btn-lg" id="submit-button" type="submit">
-                                                Book Now <i class="fas fa-angle-right"></i>
-                                            </button>
-                                        </div>
+                                        <button class="btn btn-success btn-lg" id="submit-button" type="submit">
+                                            <span class="btn-text">Book Now</span>
+                                            <span class="spinner-border spinner-border-sm d-none" id="btn-spinner"></span>
+                                            <i class="fas fa-angle-right ml-1"></i>
+                                        </button>
                                     </div>
                                 </form>
                             </div>
@@ -255,12 +255,7 @@
         <small>{{ $event->footer_text_2 }}</small>
     </footer>
 
-    <div id="loading-overlay"
-        class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex justify-content-center align-items-center d-none">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
+
 @endsection
 
 @section('js')
@@ -270,6 +265,19 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        function showButtonSpinner() {
+            document.querySelector('#btn-spinner').classList.remove('d-none');
+
+            document.getElementById('submit-button').disabled = true;
+        }
+
+        function hideButtonSpinner() {
+            document.querySelector('#btn-spinner').classList.add('d-none');
+            document.querySelector('#submit-button .btn-text').classList.remove('d-none');
+            document.getElementById('submit-button').disabled = false;
+        }
+
+
         // Create a Stripe client
         var stripe = Stripe('{{ config('services.stripe.key') }}');
 
@@ -293,7 +301,7 @@
             }
         };
 
-        // Create an instance of the card Element
+
         var card = elements.create('card', {
             style: style
         });
@@ -374,17 +382,17 @@
             var paymentGateway = paymentGatewaySelect.value;
 
             if (paymentGateway === 'paypal') {
+
                 // For PayPal, submit form normally (backend will handle redirect)
-                document.getElementById('loading-overlay').style.display = 'flex';
-                submitButton.disabled = true;
+                showButtonSpinner();
                 return; // Allow default submit
             }
 
             // For Stripe, prevent default and handle as before
             event.preventDefault();
 
-            document.getElementById('loading-overlay').style.display = 'flex';
-            submitButton.disabled = true;
+            event.preventDefault();
+            showButtonSpinner();
 
             // Get the cardholder name
             var cardholderName = document.getElementById('cardholder-name').value;
@@ -404,8 +412,7 @@
                         text: result.error.message,
                         confirmButtonColor: '#3085d6',
                     });
-                    document.getElementById('loading-overlay').style.display = 'none';
-                    submitButton.disabled = false;
+                    hideButtonSpinner();
                     return;
                 }
 
@@ -449,8 +456,6 @@
                                 title: 'Booking Done',
                                 text: 'Successfully Booked. Check Your Email for Confirmation',
                                 confirmButtonColor: '#3085d6',
-                            }).then(() => {
-                                window.location.href = data.redirect_url;
                             });
                         }
 
@@ -474,8 +479,7 @@
                         });
                     })
                     .finally(function() {
-                        document.getElementById('loading-overlay').style.display = 'none';
-                        submitButton.disabled = false;
+                        hideButtonSpinner();
                     });
             });
         });

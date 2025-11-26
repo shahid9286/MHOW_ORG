@@ -6,6 +6,19 @@ use App\Http\Controllers\Website\HomeController;
 use App\Http\Controllers\Website\StripeController;
 use Illuminate\Support\Facades\Route;
 
+
+
+
+;
+
+
+
+
+
+
+
+
+
 Route::get('/mhow-home', [HomeController::class, 'homepage'])->name('website.home');
 
 Route::get('/', [NewFrontController::class, 'index'])->name('front.index');
@@ -73,8 +86,17 @@ Route::get('/subscribe', fn () => view('website.pricing'));
 Route::post('/create-checkout-session', [StripeController::class, 'createCheckout']
 )->name('checkout.session');
 
+
 Route::get('/success', [StripeController::class,'success'])->name('checkout.success');
 
 Route::get('/cancel',[StripeController::class,'cancel'])->name('checkout.cancel');
+
+
+Route::get('/paypal/checkout', [StripeController::class, 'payment'])->name('paypal.payment');
+Route::get('/paypal/success', [FrontController::class, 'paypalSuccess'])->name('paypal.success');
+Route::get('/paypal/cancel', [FrontController::class, 'paypalCancel'])->name('paypal.cancel');
+
+
+
 
 Route::get('/{slug}', [FrontController::class, 'eventDetail'])->name('front.event.detail');
