@@ -7,20 +7,8 @@ use App\Http\Controllers\Website\StripeController;
 use Illuminate\Support\Facades\Route;
 
 
-
-
-;
-
-
-
-
-
-
-
-
-
+Route::post('/stripe/webhook', [StripeController::class, 'handleWebhook']);
 Route::get('/mhow-home', [HomeController::class, 'homepage'])->name('website.home');
-
 Route::get('/', [NewFrontController::class, 'index'])->name('front.index');
 Route::get('/about-us', [NewFrontController::class, 'aboutUs'])->name('front.about');
 Route::get('/projects', [NewFrontController::class, 'projects'])->name('front.projects');

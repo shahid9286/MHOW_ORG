@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
+use App\Models\StripeSubscription as Subscription;
 use App\Services\PayPalService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
+use Stripe\Webhook;
 
 class StripeController extends Controller
 {
@@ -146,7 +148,7 @@ class StripeController extends Controller
 
     public function payment()
     {
-        $amount = 10; 
+        $amount = 10;
         $currency = 'USD';
 
         try {
@@ -213,5 +215,41 @@ class StripeController extends Controller
     public function paypalCancel()
     {
         return redirect()->route('/')->with('error', 'Payment was cancelled!');
+    }
+
+    public function handleWebhook(Request $request)
+    {
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $payload = $request->getContent();
+        $sig = $request->header('Stripe-Signature');
+        $secret = env('STRIPE_WEBHOOK_SECRET');
+
+        try {
+            $event = Webhook::constructEvent($payload, $sig, $secret);
+
+            if ($event->type === 'checkout.session.completed') {
+
+                $session = $event->data->object;
+
+                Subscription::create([
+                    'user_id' => $session->metadata->user_id,
+                    'stripe_customer_id' => $session->customer,
+                    'stripe_subscription_id' => $session->subscription,
+                    'stripe_price_id' => $session->metadata->plan,
+                    'name' => $session->customer_details->name ?? null,
+                    'email' => $session->customer_details->email ?? null,
+                    'phone' => $session->customer_details->phone ?? null,
+                    'status' => 'active',
+                ]);
+            }
+
+            return response('OK', 200);
+
+        } catch (\Exception $e) {
+            Log::error('Webhook Error: '.$e->getMessage());
+
+            return response('Invalid', 400);
+        }
     }
 }
